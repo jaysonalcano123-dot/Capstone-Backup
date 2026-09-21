@@ -1,0 +1,1029 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+/* ==========================================================================
+   GLOBAL STYLESHEET - Super Admin pages
+   Shared by: TeacherAccountManagement.html, StudentAccountManagementSA.html
+   If you change a class here, it affects BOTH pages - check both before editing!
+   Retheme note: aligned to the IN-SEC landing page's terminal/security look
+   — see public-style.css for the source palette.
+   ========================================================================== */
+
+/* Reset default browser spacing + set the app-wide font */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Color palette / theme variables - change these to re-theme the whole site */
+:root {
+    --primary: #36a68f;       /* Teal */
+    --primary-dark: #2f937e;  /* Dark Teal */
+    --bg-light: #f9fafa;
+    --text-main: #333;
+    --text-gray: #777;
+    --border-color: #e3e9e5;
+    --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body {
+    background-color: var(--bg-light);
+    font-family: var(--font-body);
+    transition: background-color 0.2s, color 0.2s;
+}
+
+/* ------------------------------------------------------------
+   DARK MODE
+   Toggled by adding/removing `dark-mode` on <html> (see
+   Theme/theme.js — same toggle used on the public pages). The
+   choice is saved to localStorage and stays in effect until the
+   user switches it back, independent of the OS setting.
+   Re-points the shared variables everything above already reads,
+   then patches the handful of spots that use a literal white/gray
+   instead of a variable (cards, modals, panels).
+   ------------------------------------------------------------ */
+html.dark-mode {
+    --primary: #36a68f;
+    --primary-dark: #4fc2a6;
+    --bg-light: #14181a;
+    --text-main: #eaeef0;
+    --text-gray: #a6adb2;
+    --border-color: #333b3e;
+}
+html.dark-mode .layout-container,
+html.dark-mode .sidebar,
+html.dark-mode .sidebar-header,
+html.dark-mode .sidebar-footer,
+html.dark-mode .topbar,
+html.dark-mode .data-card,
+html.dark-mode .bordered-panel,
+html.dark-mode .tab-button-group,
+html.dark-mode .search-input,
+html.dark-mode .page-btn,
+html.dark-mode .dropdown-menu,
+html.dark-mode .notif-panel,
+html.dark-mode .modal-box,
+html.dark-mode .admin-modal-box,
+html.dark-mode .btn-cancel,
+html.dark-mode .page-body.full-white-bg {
+    background-color: #1c2124 !important;
+    color: var(--text-main);
+}
+html.dark-mode .topbar {
+    background-color: rgba(20, 24, 26, 0.85) !important;
+}
+html.dark-mode .notif-badge {
+    box-shadow: 0 0 0 2px #1c2124 !important;
+}
+html.dark-mode .modal-title,
+html.dark-mode .divider-text,
+html.dark-mode .admin-modal-title,
+html.dark-mode .admin-legend {
+    color: var(--text-main) !important;
+}
+html.dark-mode .modal-close-btn {
+    background-color: #23292c;
+    color: var(--text-gray);
+}
+html.dark-mode .modal-input,
+html.dark-mode .admin-input {
+    background-color: #23292c !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-main) !important;
+}
+html.dark-mode .modal-input:focus {
+    background-color: #1c2124 !important;
+}
+html.dark-mode .modal-footer {
+    background-color: #17191b !important;
+}
+html.dark-mode .btn-cancel {
+    color: var(--text-main) !important;
+    border-color: var(--border-color) !important;
+}
+html.dark-mode .btn-cancel:hover {
+    background-color: #23292c !important;
+}
+html.dark-mode .theme-toggle-btn {
+    background: #1c2124;
+}
+html.dark-mode .field-label,
+html.dark-mode .admin-label {
+    color: var(--text-gray) !important;
+}
+html.dark-mode .password-field {
+    color: var(--text-main);
+}
+html.dark-mode .row-actions-trigger:hover {
+    color: var(--text-main);
+}
+html.dark-mode .filter-group label,
+html.dark-mode .filter-label {
+    color: var(--text-gray);
+}
+html.dark-mode .search-icon {
+    color: var(--text-gray);
+}
+html.dark-mode .batch-issues {
+    background-color: rgba(217, 83, 79, 0.12);
+    border-color: rgba(217, 83, 79, 0.3);
+    color: #f3a5a2;
+}
+
+/* --- MAIN LAYOUT & SIDEBAR --- */
+.layout-container {
+    width: 100vw;
+    height: 100vh;
+    background-color: #ffffff;
+    display: flex;
+    overflow: hidden; /* Scroll lock is now safely isolated here */
+}
+
+.sidebar {
+    width: 240px;
+    flex-shrink: 0; 
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border-color);
+}
+
+.sidebar-header {
+    background-color: #ffffff;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Text wordmark, styled like the landing page's brand-mark —
+   a monospace "IN_SEC" with a blinking terminal cursor. */
+.brand-mark {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--text-main);
+}
+.brand-mark.small { font-size: 15px; }
+.brand-mark .cursor {
+    color: var(--primary);
+    animation: insec-blink 1.1s steps(1) infinite;
+}
+@keyframes insec-blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+    .brand-mark .cursor { animation: none; }
+}
+
+.logo-circles { display: flex; gap: 4px; }
+.circle { width: 12px; height: 12px; border: 1.5px solid #000; border-radius: 50%; }
+.logo-text { font-size: 14px; font-weight: 500; color: #000; }
+
+/* Container for the sidebar links (Teacher / Student management) */
+.sidebar-nav { flex: 1; padding-top: 20px; display: flex; flex-direction: column; }
+
+/* =========================================
+   SUPER ADMIN SIDEBAR NAVIGATION
+========================================= */
+.nav-item { 
+    display: flex; 
+    align-items: center; 
+    padding: 12px 20px; 
+    color: var(--text-gray); 
+    text-decoration: none; 
+    font-family: var(--font-mono);
+    font-size: 13px; 
+    gap: 12px; 
+    border-left: 4px solid transparent; 
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, padding-left 0.2s ease; 
+}
+
+.nav-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain; 
+    flex-shrink: 0;      
+    transition: transform 0.2s ease;
+}
+
+/* .active = currently open page in the sidebar (quiet teal tint) */
+.nav-item.active { 
+    background-color: rgba(54, 166, 143, 0.1); 
+    color: var(--primary-dark); 
+    border-left: 4px solid var(--primary); 
+    font-weight: 600; 
+}
+
+.nav-item:hover:not(.active) { 
+    background-color: rgba(54, 166, 143, 0.06); 
+    color: var(--primary-dark); 
+    padding-left: 24px; 
+}
+
+.nav-item:hover:not(.active) .nav-icon {
+    transform: scale(1.15); 
+}
+
+.icon { font-size: 18px; width: 24px; text-align: center; }
+
+.sidebar-footer { background-color: #ffffff; border-top: 1px solid var(--border-color); padding: 15px 20px; display: flex; align-items: center; gap: 12px; }
+.admin-avatar { width: 35px; height: 35px; background-color: var(--primary); color: #fff; display: flex; justify-content: center; align-items: center; border-radius: 6px; font-weight: bold; font-family: var(--font-mono); }
+.admin-info { display: flex; flex-direction: column; color: var(--text-main); }
+.admin-info strong { font-size: 14px; }
+.admin-info span { font-size: 12px; color: var(--text-gray); }
+
+/* --- TOPBAR & DROPDOWN --- */
+.main-content { flex: 1; display: flex; flex-direction: column; background-color: var(--bg-light); min-width: 0; }
+.topbar { height: 60px; flex-shrink: 0; background-color: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-color); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03); display: flex; justify-content: space-between; align-items: center; padding: 0 30px; }
+.spacer { flex: 1; }
+.page-title { font-family: var(--font-mono); font-size: 16px; font-weight: 700; color: var(--text-main); }
+.page-title-large { font-family: var(--font-mono); font-size: 22px; font-weight: 700; color: var(--text-main); }
+
+.topbar-actions { display: flex; align-items: center; gap: 8px; }
+.notification-btn { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: transparent; border: none; border-radius: 50%; cursor: pointer; padding: 0; transition: background-color 0.2s; }
+.notification-btn:hover { background-color: rgba(54, 166, 143, 0.12); }
+.notification-btn .topbar-icon { width: 20px; height: 20px; }
+
+/* --- Dark mode toggle button — matches the sign-in/landing page's
+     .theme-toggle-btn exactly (see public-style.css). --- */
+.theme-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    background: #ffffff;
+    color: var(--text-main);
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s ease, background-color 0.2s;
+    flex-shrink: 0;
+}
+.theme-toggle-btn:hover {
+    border-color: var(--primary-dark);
+}
+.theme-toggle-btn:active {
+    transform: scale(0.92);
+}
+.theme-toggle-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.profile-dropdown-container { position: relative; }
+.user-profile { display: flex; align-items: center; gap: 12px; padding: 6px 12px; border-radius: 20px; color: var(--text-main);}
+.dropdown-toggle-btn { display: flex; align-items: center; justify-content: center; background: transparent; border: none; cursor: pointer; font-size: 11px; color: inherit; padding: 6px; border-radius: 50%; transition: background-color 0.2s; }
+.dropdown-toggle-btn:hover { background-color: rgba(54, 166, 143, 0.12); }
+.notification-icon { font-size: 18px; }
+.user-name { font-size: 14px; font-weight: 500; line-height: 1; display: flex; align-items: center; }
+.dropdown-icon { font-size: 12px; line-height: 1; display: flex; align-items: center; }
+
+.topbar-icon { width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; display: block; transition: transform 0.2s ease; }
+
+.profile-pic { width: 30px; height: 30px; border-radius: 50%; overflow: hidden; display: flex; justify-content: center; align-items: center; flex-shrink: 0; background-color: #eee; }
+.profile-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Hidden by default; JS adds/removes the "show" class via toggleDropdown() */
+.dropdown-menu { position: absolute; right: 0; top: calc(100% + 10px); background-color: #fff; border: 1px solid var(--border-color); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); min-width: 160px; display: none; z-index: 1000; overflow: hidden; }
+.dropdown-menu.show { display: block; }
+
+/* Dropdown Animation CSS */
+.dropdown-item {
+    width: 100%;
+    padding: 12px 20px;
+    text-align: left;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.25s ease, color 0.25s ease, padding-left 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background-color: var(--bg-light);
+    padding-left: 24px;
+}
+
+.dropdown-item.text-red {
+    color: #d9534f;
+}
+
+.dropdown-item.text-red:hover {
+    background-color: #d9534f;
+    color: #ffffff;
+}
+
+.dropdown-item:hover .topbar-icon {
+    transform: scale(1.15);
+}
+
+/* ============================================================
+   NOTIFICATIONS DROPDOWN PANEL
+   ============================================================ */
+.notification-dropdown-container { position: relative; }
+.notif-badge { position: absolute; top: 2px; right: 2px; background-color: #d9534f; color: #fff; font-family: var(--font-mono); font-size: 10px; font-weight: 700; line-height: 1; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px #fff; }
+
+.notif-panel { position: absolute; right: 0; top: calc(100% + 10px); width: 340px; max-width: 90vw; background-color: #fff; border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 12px 30px rgba(0,0,0,0.12); display: none; z-index: 1000; overflow: hidden; }
+.notif-panel.show { display: block; }
+
+.notif-panel-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--border-color); }
+.notif-panel-title { font-family: var(--font-mono); font-size: 14px; font-weight: 700; color: var(--text-main); }
+.notif-panel-count { font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--primary); background-color: rgba(54, 166, 143, 0.12); padding: 3px 8px; border-radius: 10px; }
+
+.notif-list { max-height: 320px; overflow-y: auto; }
+.notif-item { position: relative; display: flex; align-items: flex-start; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--border-color); transition: background-color 0.2s; }
+.notif-item:last-child { border-bottom: none; }
+.notif-item:hover { background-color: var(--bg-light); }
+.notif-item.unread { background-color: rgba(54, 166, 143, 0.05); }
+.notif-item.unread::before { content: ''; position: absolute; left: 6px; top: 22px; width: 6px; height: 6px; border-radius: 50%; background-color: var(--primary); }
+
+.notif-avatar { flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; background-color: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 13px; font-weight: 700; }
+.notif-body { flex: 1; min-width: 0; }
+.notif-body strong { display: block; font-size: 13px; color: var(--text-main); margin-bottom: 2px; }
+.notif-body p { font-size: 12.5px; color: var(--text-gray); margin: 0 0 4px; line-height: 1.4; }
+.notif-time { font-family: var(--font-mono); font-size: 11px; color: var(--text-gray); }
+
+.notif-dismiss { flex-shrink: 0; background: transparent; border: none; color: var(--text-gray); font-size: 12px; padding: 4px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+.notif-dismiss:hover { background-color: #fee2e2; color: #ef4444; }
+
+.notif-empty { padding: 32px 18px; text-align: center; font-size: 13px; color: var(--text-gray); }
+
+.notif-panel-footer { padding: 10px 18px; display: flex; align-items: center; justify-content: space-between; background-color: var(--bg-light); border-top: 1px solid var(--border-color); }
+.notif-footer-link { background: transparent; border: none; color: var(--primary); font-family: var(--font-mono); font-size: 12px; font-weight: 600; cursor: pointer; transition: color 0.2s; }
+.notif-footer-link:hover { color: var(--primary-dark); text-decoration: underline; }
+
+@media screen and (max-width: 480px) {
+    .notif-panel { width: 300px; right: -60px; }
+}
+
+/* ============================================================
+   FULL NOTIFICATIONS PAGE ("See all")
+   ============================================================ */
+.notif-page-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+.tab-count-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; margin-left: 6px; border-radius: 9px; background-color: rgba(255,255,255,0.25); font-size: 11px; font-weight: 700; }
+.outline-tab .tab-count-badge { background-color: var(--bg-light); color: var(--text-main); }
+
+.notif-bulk-actions { display: flex; gap: 10px; }
+.btn-pill-outline:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-pill-outline:disabled:hover { background-color: transparent; border-color: var(--border-color); }
+
+.notif-table-from { display: flex; align-items: center; gap: 10px; }
+.notif-table-subject { color: var(--primary); font-weight: 500; }
+.notif-table-sent { white-space: nowrap; color: var(--text-gray); font-family: var(--font-mono); font-size: 12px; }
+.notif-table-empty { text-align: center; padding: 40px 0 !important; color: var(--text-gray); }
+
+.notif-read-icon { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; font-size: 11px; font-weight: 700; }
+.notif-read-icon.read { background-color: rgba(54, 166, 143, 0.15); color: var(--primary-dark); }
+.notif-read-icon.unread { background-color: rgba(217, 83, 79, 0.12); color: #d9534f; }
+
+.notif-configure-placeholder { padding: 40px 25px; text-align: center; color: var(--text-gray); font-size: 14px; }
+
+@media screen and (max-width: 768px) {
+    .notif-page-toolbar { flex-direction: column; align-items: stretch; }
+    .notif-bulk-actions { flex-wrap: wrap; }
+}
+
+/* --- PAGE BODY (FIGMA FIX) --- */
+.page-body { padding: 40px; overflow-y: auto; height: calc(100vh - 60px); display: flex; flex-direction: column; }
+.page-body.full-white-bg { background-color: #ffffff; }
+
+.header-actions-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; width: 100%; }
+
+/* --- Ported from the Admin stylesheet so Super Admin pages can share the
+     same "data-card" table panel structure/design as Student Account
+     Management (Admin). Keep both files in sync if you tweak these. --- */
+.data-card { background-color: #fff; border-radius: 10px; padding: 25px; margin-bottom: 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border: 1px solid var(--border-color); }
+.card-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; width: 100%; }
+.panel-heading { font-family: var(--font-mono); font-size: 14px; font-weight: 700; color: var(--text-main); }
+.filter-group { display: flex; align-items: center; gap: 10px; }
+.filter-group label { font-size: 14px; font-weight: 500; color: #555; }
+.rounded-input { border-radius: 20px; padding: 5px 15px; min-width: 100px; }
+.text-center-table th, .text-center-table td { text-align: center; }
+.modal-two-col { display: flex; gap: 24px; }
+.password-field { border: none; background: transparent; font-size: 16px; color: #333; width: 150px; outline: none; }
+
+/* --- BUTTONS --- */
+.btn { padding: 9px 18px; border-radius: 5px; font-family: var(--font-mono); font-size: 13px; cursor: pointer; font-weight: 600; transition: all 0.2s; border: none; display: inline-flex; align-items: center; gap: 8px;}
+.btn-primary { background-color: var(--primary); color: #fff; }
+.btn-primary:hover { background-color: var(--primary-dark); box-shadow: 0 6px 16px rgba(54, 166, 143, 0.25); }
+.btn-outline-teal { background-color: transparent; color: var(--primary); border: 1px solid var(--primary); }
+.btn-outline-teal:hover { background-color: #f0fdfa; }
+.btn-outline { background-color: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
+.btn-outline:hover { background-color: var(--bg-light); border-color: var(--primary); }
+.btn-pill-outline { background-color: transparent; border: 1px solid var(--border-color); color: var(--text-main); border-radius: 20px; padding: 6px 20px; font-family: var(--font-mono); font-weight: 500; cursor: pointer; }
+.btn-pill-outline:hover { background-color: var(--bg-light); border-color: var(--primary); }
+
+.tab-button-group { display: inline-flex; gap: 5px; border: 1px solid var(--border-color); border-radius: 6px; padding: 4px; background-color: #fff; }
+.tab-btn { padding: 6px 15px; border-radius: 4px; border: 1px solid transparent; font-family: var(--font-mono); font-size: 12px; cursor: pointer; }
+.active-tab { background-color: var(--primary); color: #fff; font-weight: 600; }
+.outline-tab { background-color: transparent; color: var(--text-main); font-weight: 500; transition: background-color 0.2s; }
+.outline-tab:hover { background-color: var(--bg-light); }
+
+/* --- SEARCH & FILTERS --- */
+.filter-bar { display: flex; align-items: center; gap: 20px; margin-bottom: 25px; width: 100%; }
+.filter-actions { display: flex; align-items: center; gap: 12px; }
+.filter-label { font-size: 14px; color: #555; }
+
+.form-input { padding: 10px 15px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; outline: none; }
+.form-input:focus { border-color: var(--primary); }
+
+.search-box { position: relative; margin-left: auto; }
+.search-box.full-width { flex: 1; margin-left: 0; }
+.search-input { padding: 10px 10px 10px 35px; width: 100%; background-color: #fff; color: #333; border: 1px solid #ccc; border-radius: 4px; }
+.search-input::placeholder { color: #aaa; }
+.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 14px; color: #888; z-index: 2; }
+
+/* --- TABLES (PERFECT LINES FIX) ---
+   Used for both the Teacher table and Student table (#teacherTable / #studentTable).
+   Rows are added/edited/removed dynamically via JS - see the <script> in each HTML file. */
+.table-responsive { width: 100%; overflow-x: auto; flex: 1; }
+.styled-table { width: 100%; border-collapse: collapse; border-spacing: 0; }
+
+.styled-table th { 
+    background-color: var(--bg-light); 
+    color: var(--text-gray); 
+    font-family: var(--font-mono);
+    font-size: 11px; 
+    font-weight: 600; 
+    text-transform: uppercase; 
+    letter-spacing: 0.5px; 
+    padding: 15px 10px; 
+    text-align: left; 
+    border-bottom: 1px solid var(--border-color);
+    border-top: 1px solid var(--border-color); 
+}
+
+.styled-table td { 
+    padding: 18px 10px; 
+    border-bottom: 1px solid var(--border-color); 
+    vertical-align: middle; 
+}
+
+/* Centered tables: `.styled-table th` (defined above) forces text-align:left on
+   headers, which beats the plain `.text-center-table th` rule and left the
+   headers misaligned with their centered cells. Chaining both classes raises
+   specificity so headers and cells always share the same alignment. */
+.styled-table.text-center-table th,
+.styled-table.text-center-table td { text-align: center; }
+
+.perfect-lines tbody tr:hover { background-color: #fafafa; }
+
+/* --- SPECIFIC SUPER ADMIN TABLE ELEMENTS --- */
+.text-gray { color: var(--text-gray); font-size: 13px; }
+
+.user-info-cell { display: flex; align-items: center; gap: 15px; }
+.avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 14px; color: #333; }
+.bg-teal-light { background-color: #a0ebd8; }
+.bg-gray-light { background-color: #e2e8f0; }
+.bg-blue-light { background-color: #bfdbfe; }
+.user-details { display: flex; flex-direction: column; }
+.user-details strong { font-size: 14px; color: #111; }
+.user-details span { font-size: 12px; color: var(--text-gray); }
+
+.account-details { display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+.acc-line { display: flex; align-items: center; gap: 8px; }
+/* Click this icon (👁) to reveal/hide the password text in a table row - see toggleRowPassword() in JS */
+.eye-icon { cursor: pointer; color: var(--primary); margin-left: 5px; font-size: 14px;}
+
+.status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+.status-pill .dot { width: 6px; height: 6px; border-radius: 50%; }
+.status-pill.active { background-color: #e8f5e9; color: #2e7d32; }
+.status-pill.active .dot { background-color: #4caf50; }
+.status-pill.inactive { background-color: #ffebee; color: #c62828; }
+.status-pill.inactive .dot { background-color: #f44336; }
+.status-pill.leave { background-color: #fff3e0; color: #ef6c00; }
+.status-pill.leave .dot { background-color: #ff9800; }
+
+.action-cells { display: flex; gap: 12px; justify-content: flex-end; }
+.icon-btn { background: none; border: none; font-size: 16px; color: #999; cursor: pointer; transition: 0.2s; }
+.icon-btn:hover { color: #333; }
+.icon-btn.trash:hover { color: #d9534f; }
+
+/* --- PAGINATION --- */
+.pagination-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 20px;}
+.showing-text { font-size: 13px; color: var(--text-gray); }
+.pagination-controls { display: flex; gap: 5px; }
+.page-btn { padding: 6px 12px; border: none; background: transparent; color: var(--text-gray); cursor: pointer; font-family: var(--font-mono); font-size: 12px; border-radius: 4px; }
+.page-btn.active { background: var(--primary); color: #fff; }
+.page-btn:hover:not(.active) { background: var(--bg-light); }
+
+/* =========================================
+   MODERN FORM MODAL STYLES
+========================================= */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(4px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal-overlay.show-modal { display: flex; }
+
+.modal-box {
+    background-color: #ffffff;
+    width: 100%;
+    max-width: 620px;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.modal-header {
+    padding: 24px 28px 18px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.modal-title { font-family: var(--font-mono); font-size: 19px; font-weight: 700; color: #111827; margin: 0; }
+.modal-subtitle { font-size: 13px; color: var(--text-gray); margin-top: 4px; }
+
+.modal-close-btn {
+    background-color: #f3f4f6;
+    color: #6b7280;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+.modal-close-btn:hover { background-color: #fee2e2; color: #ef4444; }
+
+.modal-body { padding: 24px 28px; display: flex; flex-direction: column; gap: 16px; }
+.field-group { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+.field-label { font-size: 12px; font-weight: 600; color: #374151; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.modal-input {
+    padding: 10px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #1f2937;
+    background-color: #f9fafb;
+    outline: none;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.modal-input:focus {
+    background-color: #ffffff;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(54, 166, 143, 0.18);
+}
+
+.text-center { text-align: center; }
+
+.section-divider { border-bottom: 1px solid var(--border-color); margin: 8px 0 4px; padding-bottom: 6px; }
+.divider-text { font-size: 14px; font-weight: 700; color: #111827; }
+
+.modal-row-4 { display: grid; grid-template-columns: 3fr 3fr 1fr 1fr; gap: 12px; }
+.modal-row-2 { display: grid; grid-template-columns: 1.5fr 1fr; gap: 12px; }
+
+.modal-footer {
+    padding: 18px 28px 24px;
+    background-color: #f9fafb;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.btn-cancel {
+    background-color: #ffffff;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-cancel:hover { background-color: #f3f4f6; border-color: #9ca3af; }
+
+.btn-modal-submit {
+    background-color: var(--primary);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(54, 166, 143, 0.3);
+    transition: all 0.2s;
+}
+
+.btn-modal-submit:hover {
+    background-color: var(--primary-dark);
+    box-shadow: 0 4px 10px rgba(54, 166, 143, 0.4);
+}
+
+/* =========================================
+   RESPONSIVE DESIGN (TABLET & MOBILE)
+========================================= */
+.mobile-menu-btn { display: none; background: transparent; border: none; font-size: 24px; color: var(--text-main); cursor: pointer; margin-right: 15px; }
+
+@media screen and (max-width: 1024px) {
+    .dashboard-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
+    .card-main, .card-top-right, .card-mid-right, .card-bottom-left, .card-bottom-right { grid-column: 1; grid-row: auto; }
+    .stats-card-grid, .stats-card-grid-4 { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Mobile breakpoint (phones/small tablets, width <= 768px):
+   sidebar becomes a slide-in drawer, buttons/filters stack vertically */
+@media screen and (max-width: 768px) {
+    .mobile-menu-btn { display: block; }
+    .sidebar { position: fixed; left: -240px; top: 0; height: 100vh; z-index: 1000; box-shadow: 4px 0 15px rgba(0,0,0,0.2); transition: left 0.3s ease-in-out; }
+    .sidebar.show-sidebar { left: 0; }
+    .topbar { padding: 0 15px; }
+    .page-title, .page-title-large { font-size: 20px; }
+    .page-body { padding: 15px; }
+    .header-actions-row { flex-direction: column; align-items: flex-start; gap: 15px; }
+    .header-actions { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+    .btn { width: 100%; justify-content: center; }
+    .filter-bar { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .search-box, .search-box.full-width, .filter-actions { width: 100%; }
+    .filter-actions { flex-wrap: wrap; justify-content: space-between; }
+    .stats-card-grid, .stats-card-grid-4 { grid-template-columns: 1fr; }
+    .table-responsive { border-radius: 8px; border: 1px solid var(--border-color); overflow-x: auto; }
+    .styled-table th, .styled-table td { padding: 12px 10px; font-size: 12px; white-space: nowrap; }
+    .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 999; }
+    .sidebar-overlay.show-overlay { display: block; }
+}
+/* =========================================
+   ADD/EDIT MODAL (popup form) STYLES
+   Used by the "Add Student"/"Add Teacher" popup in both HTML files.
+   JS toggles the "show" class to open/close it.
+========================================= */
+.admin-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+.admin-modal-overlay.show { display: flex; }
+.admin-modal-box { background: white; border-radius: 12px; width: 100%; max-width: 500px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column; }
+.admin-modal-header { padding: 25px 30px 15px; border-bottom: none; display: flex; justify-content: space-between; align-items: center; }
+.admin-modal-title { margin: 0; font-size: 20px; font-weight: 700; color: #0f172a; }
+.admin-modal-body { padding: 15px 30px; display: flex; flex-direction: column; gap: 20px; }
+.admin-fieldset { border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 0; }
+.admin-legend { font-weight: 600; color: #334155; padding: 0 10px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.admin-legend-icon { color: var(--primary, #36b399); font-size: 16px; }
+.admin-form-group { margin-bottom: 15px; }
+.admin-form-group:last-child { margin-bottom: 0; }
+.admin-label { display: block; font-size: 13px; color: #475569; margin-bottom: 8px; font-weight: 500; }
+.admin-input-wrapper { position: relative; display: flex; align-items: center; }
+.admin-input-icon { position: absolute; left: 12px; color: #94a3b8; font-size: 14px; }
+.admin-input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; color: #334155; transition: 0.2s ease; outline: none; box-sizing: border-box; }
+.admin-input.with-icon { padding-left: 35px; }
+.admin-input:focus { border-color: var(--primary, #36b399); box-shadow: 0 0 0 3px rgba(54, 179, 153, 0.1); }
+.admin-flex-row { display: flex; gap: 15px; }
+.admin-flex-col { flex: 1; }
+.admin-modal-footer { padding: 15px 30px 30px; display: flex; justify-content: flex-end; gap: 12px; }
+.btn-ghost { padding: 10px 20px; border: 1px solid var(--primary, #36b399); background: transparent; color: var(--primary, #36b399); border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s ease; font-size: 14px; }
+.btn-ghost:hover { background: rgba(54, 179, 153, 0.05); }
+.btn-solid { padding: 10px 20px; border: none; background: var(--primary, #36b399); color: white; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s ease; font-size: 14px; }
+.btn-solid:hover { background: #2d9681; }
+.admin-input.with-icon { padding-left: 35px; padding-right: 35px; }
+.admin-input-eye { position: absolute; right: 12px; color: #94a3b8; font-size: 14px; cursor: pointer; user-select: none; transition: 0.2s ease; }
+.admin-input-eye:hover { color: var(--primary, #36b399); }
+.eye-icon { cursor: pointer; user-select: none; margin-left: 6px; transition: 0.2s ease; }
+.eye-icon:hover { color: var(--primary, #36b399); }
+/* Row-level "..." actions menu (Teacher / Student / Section tables) --
+   anchors a .dropdown-menu to a single table row instead of the topbar. */
+.row-actions-menu { position: relative; display: inline-flex; }
+.row-actions-trigger { background: none; border: none; font-size: 18px; line-height: 1; color: #6b7280; cursor: pointer; padding: 4px 10px; border-radius: 6px; transition: background-color 0.2s, color 0.2s; }
+.row-actions-trigger:hover { background-color: var(--bg-light); color: #111; }
+.row-actions-dropdown { min-width: 180px; }
+.dropdown-item-icon { width: 16px; display: inline-flex; justify-content: center; flex-shrink: 0; }
+
+/* Clickable Status pill (toggles Active/Inactive) — same look as the
+   read-only .status-pill, just reset from a <button> and given a
+   hover/disabled affordance. */
+.status-pill-btn { border: none; cursor: pointer; transition: filter 0.15s, opacity 0.15s; }
+.status-pill-btn:hover:not(:disabled) { filter: brightness(0.95); }
+.status-pill-btn:disabled { opacity: 0.6; cursor: default; }
+
+/* Row-actions dropdown flips upward when there isn't enough room below
+   the trigger (e.g. the last few rows of a long table). */
+.row-actions-dropdown.open-upward { top: auto; bottom: calc(100% + 6px); }
+
+/* ==========================================================================
+   MULTI-SELECT, BATCH ACTIONS & CONFIRM DIALOG
+   Used by the Student / Teacher / Section management tables:
+   checkbox column, the toolbar that appears when rows are ticked, the
+   batch-import validation list, and the shared confirm dialog.
+   ========================================================================== */
+
+/* --- Checkbox column ---------------------------------------------------- */
+.styled-table th.checkbox-cell,
+.styled-table td.checkbox-cell {
+    width: 44px;
+    padding-right: 0;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.row-checkbox {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    cursor: pointer;
+    vertical-align: middle;
+    accent-color: var(--primary);
+}
+
+.row-checkbox:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Ticked rows get a faint tint so a selection reads as one group */
+.styled-table tr.row-selected > td { background-color: rgba(54, 166, 143, 0.07); }
+
+/* --- Selection toolbar (sits directly above the table) ------------------ */
+.selection-bar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 10px;
+    padding: 10px 14px;
+    background-color: var(--bg-light);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+}
+
+.selection-clear {
+    padding: 0;
+    background: none;
+    border: none;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    color: #d9534f;
+    cursor: pointer;
+}
+
+.selection-clear:hover:not(:disabled) { text-decoration: underline; }
+.selection-clear:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.selection-count {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.selection-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-left: auto;
+}
+
+/* Toolbar buttons sit a little tighter than the modal footer ones */
+.selection-actions .btn-cancel,
+.selection-actions .btn-danger { padding: 8px 14px; font-size: 13px; }
+
+/* --- Row count under the table ------------------------------------------ */
+.selection-footer {
+    padding: 12px 4px 0;
+    font-size: 13px;
+    color: var(--text-gray);
+}
+
+/* --- Destructive button ------------------------------------------------- */
+.btn-danger {
+    background-color: #d9534f;
+    color: #ffffff;
+    border: 1px solid #d9534f;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-danger:hover:not(:disabled) { background-color: #b91c1c; border-color: #b91c1c; }
+.btn-danger:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Modal buttons can now be disabled mid-import / mid-save */
+.btn-cancel:disabled,
+.btn-modal-submit:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
+.btn-cancel:disabled:hover { background-color: #ffffff; border-color: #d1d5db; }
+.btn-modal-submit:disabled:hover { background-color: var(--primary); }
+
+/* --- Batch import: validation issues & progress -------------------------- */
+.batch-issues {
+    margin: 8px 0 0;
+    padding: 10px 12px 10px 28px;
+    max-height: 160px;
+    overflow-y: auto;
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: #991b1b;
+}
+
+.batch-issues li { margin-bottom: 4px; }
+.batch-issues li:last-child { margin-bottom: 0; }
+
+.batch-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 10px;
+    font-size: 12.5px;
+    color: var(--text-gray);
+}
+
+.batch-progress-bar {
+    height: 6px;
+    background-color: var(--border-color);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.batch-progress-bar > div {
+    height: 100%;
+    background-color: var(--primary);
+    border-radius: 999px;
+    transition: width 0.2s ease;
+}
+
+/* --- Confirm dialog ------------------------------------------------------ */
+.confirm-box .modal-body { padding-top: 4px; }
+.confirm-details ul { margin: 0; }
+
+/* --- Small screens ------------------------------------------------------- */
+@media (max-width: 768px) {
+    .selection-bar { gap: 10px; }
+    .selection-actions { margin-left: 0; width: 100%; }
+    .selection-actions .btn-cancel,
+    .selection-actions .btn-danger { flex: 1; }
+    .styled-table th.checkbox-cell,
+    .styled-table td.checkbox-cell { width: 36px; padding: 12px 0 12px 10px; }
+}
+/* ============================================================
+   NOTIFICATIONS FEED
+   Purpose-built layout for the Notifications page (a card feed,
+   not the shared data-table/tab-panel pattern used elsewhere) —
+   avoids the page looking like a copy of a generic admin-table
+   template. Used by NotificationSA.jsx / Notification.jsx only.
+   ============================================================ */
+.notif-feed-wrap { max-width: 820px; }
+
+.notif-feed-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 22px;
+}
+.notif-feed-title {
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 4px;
+}
+.notif-feed-subtitle {
+    font-size: 13px;
+    color: var(--text-gray);
+}
+.notif-feed-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.notif-feed-select-all {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-gray);
+    cursor: pointer;
+    margin-right: 4px;
+}
+.notif-feed-select-all input { accent-color: var(--primary); cursor: pointer; }
+
+.notif-feed-list { display: flex; flex-direction: column; gap: 10px; }
+
+.notif-feed-card {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 44px 16px 18px;
+    background-color: var(--bg-light);
+    border: 1px solid var(--border-color);
+    border-left: 3px solid transparent;
+    border-radius: 12px;
+    transition: box-shadow 0.2s, border-color 0.2s, transform 0.15s;
+}
+.notif-feed-card:hover {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+    transform: translateY(-1px);
+}
+.notif-feed-card.is-unread {
+    background-color: rgba(54, 166, 143, 0.06);
+    border-left-color: var(--primary);
+}
+.notif-feed-card.is-selected {
+    border-color: var(--primary);
+}
+
+.notif-feed-checkbox {
+    margin-top: 3px;
+    accent-color: var(--primary);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.notif-feed-avatar {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.notif-feed-body { flex: 1; min-width: 0; }
+.notif-feed-row-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.notif-feed-name { font-size: 14px; font-weight: 600; color: var(--text-main); }
+.notif-feed-time { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-gray); white-space: nowrap; }
+.notif-feed-message { font-size: 13.5px; line-height: 1.55; color: var(--text-main); margin-top: 4px; }
+
+.notif-feed-dot {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--primary);
+}
+
+.notif-feed-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-gray);
+    font-size: 14px;
+    border: 1px dashed var(--border-color);
+    border-radius: 12px;
+}
+
+html.dark-mode .notif-feed-card {
+    background-color: #1c2124;
+    border-color: var(--border-color);
+}
+html.dark-mode .notif-feed-card.is-unread {
+    background-color: rgba(54, 166, 143, 0.1);
+}
+html.dark-mode .notif-feed-empty {
+    border-color: var(--border-color);
+}
+
+@media screen and (max-width: 600px) {
+    .notif-feed-card { padding: 14px 36px 14px 14px; }
+    .notif-feed-toolbar { flex-direction: column; align-items: stretch; }
+    .notif-feed-actions { justify-content: flex-start; }
+}

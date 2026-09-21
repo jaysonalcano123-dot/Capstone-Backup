@@ -1,0 +1,867 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* ============================================================
+   GLOBAL RESET & BASE STYLES
+   Applies to the entire site — removes default browser spacing
+   and sets the default font for every element.
+   ============================================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ------------------------------------------------------------
+   THEME COLORS (CSS Variables)
+   Change these values to re-theme the whole site at once.
+   ------------------------------------------------------------ */
+:root {
+    --primary: #5bbd5a;        /* main brand green (buttons, links, accents) */
+    --primary-dark: #3a8a3a;   /* darker green, used for hover states */
+    --primary-teal: #36a68f;   /* secondary accent color (gradients) */
+    --bg-light: #f9fafa;       /* default page background */
+    --text-main: #333;         /* main body text color */
+    --text-gray: #777;         /* muted/secondary text color */
+
+    /* --- IN-SEC landing page tokens (terminal/security theme) ---
+       Scoped to the marketing landing page only; the app screens
+       (e.g. sign-in) keep the tokens above untouched. Light palette,
+       matching the rest of the site rather than a dark terminal. */
+    --insec-bg: var(--bg-light);
+    --insec-bg-elev: #ffffff;
+    --insec-bg-elev-2: #f1f6f3;
+    --insec-line: #e3e9e5;
+    --insec-green: var(--primary);
+    --insec-green-dim: var(--primary-dark);
+    --insec-amber: #e08e2d;
+    --insec-text: var(--text-main);
+    --insec-text-muted: var(--text-gray);
+    --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+html {
+    scroll-behavior: smooth; /* animates the jump when a nav link's #anchor is clicked */
+}
+
+body {
+    background-color: var(--bg-light);
+    color: var(--text-main);
+    overflow-x: hidden; /* prevents horizontal scroll from full-width sections */
+    transition: background-color 0.2s, color 0.2s;
+}
+
+/* ------------------------------------------------------------
+   DARK MODE
+   Toggled by adding/removing `dark-mode` on <html> (see
+   Theme/theme.js). Re-points the same CSS variables everything
+   else already reads, so the landing page and the sign-in page
+   both pick it up automatically. The choice is saved to
+   localStorage and stays in effect until the user toggles it
+   again — it does not follow the OS light/dark setting.
+   ------------------------------------------------------------ */
+html.dark-mode {
+    --primary: #5bbd5a;
+    --primary-dark: #4fae4f;
+    --primary-teal: #36a68f;
+    --bg-light: #14181a;
+    --text-main: #eaeef0;
+    --text-gray: #a6adb2;
+
+    --insec-bg: #14181a;
+    --insec-bg-elev: #1c2124;
+    --insec-bg-elev-2: #23292c;
+    --insec-line: #333b3e;
+    --insec-green: var(--primary);
+    --insec-green-dim: var(--primary-dark);
+    --insec-amber: #e0a23d;
+    --insec-text: var(--text-main);
+    --insec-text-muted: var(--text-gray);
+}
+
+/* A handful of spots use hard-coded colors instead of the variables above
+   (translucent header/back-button backgrounds, the light illustration
+   panel, and a few form text colors) — those get their own dark overrides. */
+html.dark-mode header {
+    background: rgba(20, 24, 26, 0.85);
+}
+html.dark-mode .split-container,
+html.dark-mode .right-panel {
+    background-color: var(--insec-bg-elev);
+}
+html.dark-mode .left-panel {
+    background: linear-gradient(160deg, #1f2b27 0%, #182420 100%);
+}
+html.dark-mode .welcome-title,
+html.dark-mode .form-title {
+    color: var(--text-main);
+}
+html.dark-mode .input-group label {
+    color: var(--text-main);
+}
+html.dark-mode .input-group input {
+    background-color: var(--insec-bg-elev-2);
+    border-color: var(--insec-line);
+    color: var(--text-main);
+}
+html.dark-mode .input-with-icon .input-icon {
+    color: var(--text-gray);
+}
+html.dark-mode .remember-me {
+    color: var(--text-gray);
+}
+html.dark-mode .btn-back {
+    background: rgba(28, 33, 36, 0.9);
+    border-color: rgba(255, 255, 255, 0.08);
+    color: var(--text-gray);
+}
+
+/* --- Dark mode toggle button (landing header + sign-in floating corner) --- */
+.theme-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid var(--insec-line);
+    background: var(--insec-bg-elev);
+    color: var(--insec-text);
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s ease, background-color 0.2s;
+    flex-shrink: 0;
+}
+.theme-toggle-btn:hover {
+    border-color: var(--insec-green-dim);
+}
+.theme-toggle-btn:active {
+    transform: scale(0.92);
+}
+.theme-toggle-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+
+/* ============================================================
+   LANDING PAGE STYLES
+   Everything below (until the LOGIN PAGE section) styles the
+   marketing/landing page: header, hero, feature sections, etc.
+
+   This pass keeps the original names and terminal/green identity,
+   and leans on generous spacing and a cleaner type scale — rather
+   than added ornament — to make the page feel considered instead
+   of a generic stacked-card template. The old title-bar "traffic
+   light" dots and small-caps eyebrow labels (the two most common
+   tells of a templated page) are gone; a plain file-path label is
+   the only window chrome left.
+   ============================================================ */
+.page-container {
+    width: 100%;
+    background: var(--insec-bg);
+    color: var(--insec-text);
+    font-family: var(--font-body);
+}
+
+/* --- Top navigation bar (sticky header with wordmark + login button) --- */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 22px 60px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--insec-line);
+    position: sticky; /* stays pinned to top when scrolling */
+    top: 0;
+    z-index: 100;
+}
+
+/* Text wordmark used in the header and footer, with a blinking
+   terminal-style cursor as the page's recurring signature. */
+.brand-mark {
+    font-family: var(--font-mono);
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--insec-text);
+}
+.brand-mark.small { font-size: 15px; }
+.brand-mark .cursor {
+    color: var(--insec-green);
+    animation: insec-blink 1.1s steps(1) infinite;
+}
+
+/* Section links in the header — quiet by default, filled pill on
+   hover/focus so they don't compete with the hero visual. */
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.nav-links a {
+    display: inline-block;
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--insec-text-muted);
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    transition: color 0.2s, background-color 0.2s, transform 0.15s ease;
+}
+.nav-links a:active {
+    transform: scale(0.94); /* quick press feedback on click/tap */
+}
+.nav-links a:hover,
+.nav-links a:focus-visible {
+    color: var(--insec-green-dim);
+    background: rgba(91, 189, 90, 0.1);
+}
+
+/* Groups the dark-mode toggle + Login button together on the right side
+   of the header, so `header`'s space-between still puts them opposite
+   the wordmark/nav without needing a third flex child. */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* "Log In" button in the header — quiet ghost style so the terminal
+   window in the hero stays the loudest thing on the page. */
+.btn-login {
+    background: transparent;
+    color: var(--insec-green);
+    border: 1px solid var(--insec-green-dim);
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.btn-login:hover {
+    background-color: var(--insec-green);
+    color: #ffffff;
+    box-shadow: 0 8px 20px rgba(91, 189, 90, 0.22);
+}
+
+/* Generic wrapper used for each page section (adds horizontal/vertical spacing) */
+.section-container {
+    padding: 140px 10vw;
+    position: relative;
+}
+
+/* --- Hero section --- */
+#hero {
+    min-height: 92vh;
+    display: flex;
+    align-items: center;
+    background:
+        radial-gradient(ellipse at 15% 20%, rgba(91, 189, 90, 0.10), transparent 55%),
+        var(--insec-bg);
+}
+
+.hero-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 80px;
+    align-items: center;
+    width: 100%;
+}
+.hero-copy { text-align: left; }
+
+/* Utility classes: reusable helpers, similar to Bootstrap/Tailwind style */
+.text-center { text-align: center; }
+.mb-50 { margin-bottom: 64px; }
+
+/* Small pill label above the headline — the one place the boot-sequence
+   language survives, without boxing the whole hero in a terminal window. */
+.hero-tag {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--insec-green-dim);
+    background: rgba(91, 189, 90, 0.1);
+    padding: 7px 16px;
+    border-radius: 20px;
+    margin-bottom: 22px;
+}
+
+.boot-lines { min-height: 66px; }
+.boot-line {
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    color: var(--insec-text-muted);
+    margin-bottom: 8px;
+}
+
+.hero-reveal { animation: insec-fade-up 0.5s ease both; }
+
+.hero-title {
+    font-family: var(--font-body);
+    font-size: clamp(44px, 6.5vw, 78px);
+    font-weight: 800;
+    line-height: 1.04;
+    letter-spacing: -1.5px;
+    color: var(--insec-text);
+    margin-bottom: 22px;
+}
+
+.hero-subtitle {
+    font-family: var(--font-body);
+    font-size: 18px;
+    line-height: 1.7;
+    color: var(--insec-text-muted);
+    max-width: 480px;
+    margin-bottom: 38px;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+/* Small arrow used inside both hero buttons; nudges right on hover */
+.btn-arrow {
+    display: inline-block;
+    transition: transform 0.2s;
+}
+
+/* Main call-to-action button (e.g. "Download") in the hero */
+.btn-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background-color: var(--insec-green);
+    color: #ffffff;
+    border: none;
+    padding: 17px 30px;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 15.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+.btn-download:hover {
+    background-color: var(--insec-green-dim);
+    transform: translateY(-2px);
+    box-shadow: 0 16px 32px rgba(91, 189, 90, 0.3);
+}
+.btn-download:hover .btn-arrow { transform: translateX(3px); }
+
+/* Secondary hero action — a quiet text link, not a competing button */
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    color: var(--insec-text);
+    border: none;
+    padding: 17px 6px;
+    font-family: var(--font-body);
+    font-size: 15.5px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.btn-secondary:hover { color: var(--insec-green); }
+.btn-secondary:hover .btn-arrow { transform: translateX(3px); }
+
+/* --- Hero visual: the game logo floating in a soft, elevated card --- */
+.hero-visual {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.hero-blob {
+    position: absolute;
+    width: 420px;
+    height: 420px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(91, 189, 90, 0.22), rgba(91, 189, 90, 0) 70%);
+    z-index: 0;
+}
+.hero-card {
+    position: relative;
+    z-index: 1;
+    width: min(360px, 80vw);
+    aspect-ratio: 1 / 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--insec-bg-elev);
+    border: 1px solid var(--insec-line);
+    border-radius: 24px;
+    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.1);
+}
+.hero-badge {
+    position: absolute;
+    bottom: -16px;
+    right: -16px;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--insec-green);
+    color: #ffffff;
+    border: 4px solid var(--insec-bg);
+    box-shadow: 0 12px 24px rgba(91, 189, 90, 0.35);
+}
+
+/* Section heading style, used above each content block */
+.section-title {
+    font-family: var(--font-mono);
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 22px;
+    color: var(--insec-text);
+}
+
+/* Slightly larger heading style, used above the features grid */
+.huge-title {
+    font-family: var(--font-mono);
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--insec-text);
+}
+
+/* --- "Content split" sections: text on one side, image on the other --- */
+.content-split {
+    display: flex;
+    align-items: center;
+    gap: 100px;
+}
+/* Add .reverse to flip the order (image left, text right) */
+.content-split.reverse {
+    flex-direction: row-reverse;
+}
+
+.text-content { flex: 1; }
+.image-content { flex: 1; display: flex; justify-content: center; }
+
+/* Paragraph text used inside content-split sections */
+.description-text {
+    font-family: var(--font-body);
+    font-size: 17px;
+    line-height: 1.8;
+    color: var(--insec-text-muted);
+    max-width: 46ch;
+}
+
+/* Bordered panel used to frame the about logo and the telemetry/
+   assessment mockups. A thin accent bar along the top is the only
+   chrome — echoes the hero card without boxing it in a title bar. */
+.panel-frame {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    background: var(--insec-bg-elev);
+    border: 1px solid var(--insec-line);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.07);
+}
+.panel-frame::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--insec-green);
+}
+.panel-body {
+    padding: 44px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.placeholder-img {
+    max-width: 100%;
+    height: auto;
+}
+.mockup-svg { width: 100%; height: auto; }
+
+/* Full-bleed tinted backdrop behind the Features section, so it reads
+   as a distinct band rather than a section that just looks like the
+   ones above and below it. */
+.features-section {
+    background: var(--insec-bg-elev-2);
+}
+
+/* --- Feature cards grid (the "Features" section with multiple cards) --- */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); /* responsive columns */
+    gap: 36px;
+}
+
+/* Individual feature card — bracket corners light up on hover, like a
+   target reticle, echoing the security-analyst framing of the product. */
+.feature-card {
+    position: relative;
+    background: var(--insec-bg-elev);
+    padding: 42px 32px;
+    border-radius: 10px;
+    border: 1px solid var(--insec-line);
+    transition: border-color 0.2s, transform 0.2s;
+}
+.feature-card:hover { border-color: var(--insec-green-dim); transform: translateY(-4px); }
+.feature-card::before,
+.feature-card::after {
+    content: "";
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--insec-green);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.feature-card::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+.feature-card::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+.feature-card:hover::before,
+.feature-card:hover::after { opacity: 1; }
+
+/* Filled badge behind each feature icon, instead of a bare icon —
+   gives the grid more graphic weight at a glance. */
+.feature-icon-badge {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: var(--insec-green);
+    color: #ffffff;
+    margin-bottom: 24px;
+    box-shadow: 0 10px 22px rgba(91, 189, 90, 0.25);
+}
+
+.feature-title {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 17px;
+    line-height: 1.4;
+    margin-bottom: 12px;
+    color: var(--insec-text);
+}
+.feature-desc {
+    font-family: var(--font-body);
+    font-size: 14.5px;
+    color: var(--insec-text-muted);
+    line-height: 1.7;
+}
+
+/* --- Footer --- */
+.site-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 50px 10vw;
+    border-top: 1px solid var(--insec-line);
+    background: var(--insec-bg);
+}
+.footer-tagline {
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    color: var(--insec-text-muted);
+}
+
+@keyframes insec-blink { 50% { opacity: 0; } }
+@keyframes insec-fade-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .brand-mark .cursor { animation: none; }
+    .hero-reveal { animation: none; }
+    html { scroll-behavior: auto; }
+    .nav-links a { transition: color 0.2s; }
+    .nav-links a:active { transform: none; }
+}
+
+
+/* ============================================================
+   LOGIN PAGE STYLES
+   Everything below styles the separate login/signup page
+   (split-screen layout: image panel + form panel).
+   ============================================================ */
+
+/* Full-page background — centers the floating login card */
+.signin-page-bg {
+    min-height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--bg-light);
+    padding: 40px;
+}
+
+/* The floating card itself: two-column layout, rounded, shadowed,
+   bounded width/height so it no longer fills the whole screen */
+.split-container {
+    display: flex;
+    width: 100%;
+    max-width: 960px;
+    height: 600px;
+    max-height: 90vh;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.12);
+    background-color: #fff;
+}
+
+/* Left side: light illustration panel (hidden on mobile).
+   Holds the "Welcome Back" heading + inline SVG illustration. */
+.left-panel {
+    flex: 1.2;
+    background: linear-gradient(160deg, #eaf7f3 0%, #d9f0ea 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px;
+}
+
+.left-panel-content {
+    max-width: 420px;
+    text-align: center;
+}
+
+.welcome-title {
+    font-size: 42px;
+    font-weight: 800;
+    color: #111;
+    margin-bottom: 12px;
+}
+
+.welcome-subtitle {
+    font-size: 16px;
+    color: var(--text-gray);
+    margin-bottom: 40px;
+}
+
+.login-illustration {
+    width: 100%;
+    max-width: 340px;
+    height: auto;
+}
+
+/* Right side: contains the actual login/signup form */
+.right-panel {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff;
+    padding: 40px;
+}
+
+/* Constrains the form width so it doesn't stretch too wide */
+.form-container {
+    width: 100%;
+    max-width: 400px;
+}
+
+/* "Back to Home" control — floats over the top-left corner of the page,
+   independent of the card, so it reads as page-level navigation rather
+   than part of the form. */
+.btn-back {
+    position: fixed;
+    top: 30px;
+    left: 30px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    color: var(--text-gray);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 18px 10px 14px;
+    border-radius: 999px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+    transition: color 0.2s, transform 0.2s, box-shadow 0.2s;
+    z-index: 10;
+}
+.btn-back svg { flex-shrink: 0; transition: transform 0.2s; }
+.btn-back:hover {
+    color: var(--primary-dark);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+.btn-back:hover svg { transform: translateX(-3px); }
+
+/* "Log In" / "Sign Up" heading on the form */
+.form-title {
+    font-size: 32px;
+    margin-bottom: 8px;
+    color: #111;
+}
+
+.form-subtitle {
+    font-size: 14px;
+    color: var(--text-gray);
+    margin-bottom: 25px;
+}
+
+/* --- Form input fields (email, password, etc.) --- */
+.input-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.input-group label {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.input-group input {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.input-group input:focus { border-color: var(--primary); } /* highlight on focus */
+
+/* Wraps an input with a leading icon (email envelope, password lock, etc.) */
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-with-icon .input-icon {
+    position: absolute;
+    left: 14px;
+    display: flex;
+    color: #9ca3af;
+    pointer-events: none;
+}
+
+.input-with-icon input {
+    width: 100%;
+    padding-left: 42px;
+}
+
+/* Row containing "Remember me" checkbox + "Forgot password?" link */
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    font-size: 13px;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #555;
+}
+
+.forgot-password {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+.forgot-password:hover { text-decoration: underline; }
+
+/* Main submit button for the login/signup form */
+.btn-submit {
+    width: 100%;
+    padding: 14px;
+    background-color: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.btn-submit:hover { background-color: var(--primary-dark); }
+
+
+/* ============================================================
+   RESPONSIVE / MOBILE STYLES
+   Overrides applied on screens 900px wide or smaller
+   (tablets and phones).
+   ============================================================ */
+@media screen and (max-width: 900px) {
+
+    /* --- Landing Page Responsive --- */
+    /* Stack text/image sections vertically instead of side-by-side */
+    .content-split, .content-split.reverse {
+        flex-direction: column;
+        text-align: center;
+        gap: 40px;
+    }
+    .description-text { max-width: 100%; margin: 0 auto; }
+    .section-container { padding: 80px 24px; }
+    header { padding: 18px 20px; }
+    .nav-links { display: none; }
+    .hero-grid { grid-template-columns: 1fr; gap: 50px; text-align: center; }
+    .hero-copy { text-align: center; }
+    .hero-subtitle { margin-left: auto; margin-right: auto; }
+    .hero-visual { order: -1; }
+    .hero-card { width: min(260px, 70vw); }
+    .site-footer { padding: 36px 20px; flex-direction: column; text-align: center; }
+
+    /* --- Login Page Responsive --- */
+    .signin-page-bg {
+        padding: 0;
+    }
+    .split-container {
+        flex-direction: column; /* stack panels instead of side-by-side */
+        max-width: 100%;
+        height: auto;
+        max-height: none;
+        min-height: 100vh;
+        border-radius: 0;
+        box-shadow: none;
+    }
+    .left-panel {
+        display: none; /* Hide image on mobile for clean form view */
+    }
+    .right-panel {
+        padding: 20px;
+    }
+
+    /* Pull the floating back button in closer and shrink it slightly
+       so it doesn't crowd the form on small screens */
+    .btn-back {
+        top: 16px;
+        left: 16px;
+        padding: 8px 14px 8px 12px;
+        font-size: 13px;
+    }
+
+    /* Match the "Back to Home" button's tighter mobile position so the
+       floating dark-mode toggle on sign-in-page.jsx stays in view. */
+    .theme-toggle-btn[style] {
+        top: 16px !important;
+        right: 16px !important;
+    }
+}
