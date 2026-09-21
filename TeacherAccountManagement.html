@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Account Management - Super Admin</title>
+    <link rel="stylesheet" href="global-SAStyle.css">
+</head>
+
+<body class="super-admin">
+    <!-- ============================================================
+         TEACHER ACCOUNT MANAGEMENT (Super Admin view)
+         Lets a Super Admin add / edit / delete teacher login accounts
+         and see which section each teacher is assigned to + status.
+         No backend yet - data only lives in the page while it's open.
+         ============================================================ -->
+
+    <div class="layout-container">
+
+        <!-- Dark overlay behind the sidebar on mobile; tapping it closes the menu -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <!-- Left navigation sidebar (id="mobileSidebar" so JS can slide it in/out on mobile) -->
+        <aside class="sidebar" id="mobileSidebar">
+            <div class="sidebar-header">
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="TeacherAccountManagement.html" class="nav-item active">
+                    <img src="Images/chalkboard-user.png" alt="Teacher Icon" class="nav-icon">
+                    Teacher Account Management
+                </a>
+                <a href="StudentAccountManagementSA.html" class="nav-item">
+                    <img src="Images/graduation-cap.png" alt="Student Icon" class="nav-icon">
+                    Student Account Management
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="admin-avatar">S</div>
+                <div class="admin-info">
+                    <strong>Sample (Name)</strong>
+                    <span>Super Admin</span>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <!-- Top bar: hamburger (mobile only) + notification bell + profile dropdown -->
+            <header class="topbar">
+                <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+
+                <div class="spacer"></div>
+
+                <div class="profile-dropdown-container">
+                    <div class="user-profile" onclick="toggleDropdown()">
+                        <img src="Images/bell.png" alt="Notification" class="topbar-icon">
+                        <span class="user-name">Sample Sample</span>
+                        <span class="dropdown-icon">▼</span>
+                    </div>
+
+                    <div class="dropdown-menu" id="profileDropdown">
+                        <button class="dropdown-item text-red" onclick="window.location.href='Login Page.html'">
+                            <img src="Images/leave.png" alt="Logout" class="topbar-icon">
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="page-body full-white-bg">
+
+                <!-- Page title + "Add Teacher" button (opens the popup form) -->
+                <div class="header-actions-row">
+                    <h1 class="page-title-large">Teacher Account Management</h1>
+                    <button class="btn btn-primary" onclick="openAdminModal('add')">
+                        <span class="icon" style="font-size: 14px;">+</span> Add Teacher
+                    </button>
+                </div>
+
+                <!-- Search box + status filter dropdown (search/filter logic not implemented yet) -->
+                <div class="filter-bar">
+                    <div class="search-box full-width">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="form-input search-input" placeholder="Search by name, email or ID...">
+                    </div>
+                    <div class="filter-actions">
+                        <select class="form-input" style="min-width: 150px;">
+                            <option>Any Status</option>
+                            <option>Active</option>
+                            <option>Inactive</option>
+                            <option>On Leave</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Teacher list table. <tbody> starts EMPTY on purpose - rows are
+                     created dynamically by JS (see saveTeacher()) when a teacher is added.
+                     Employee ID is auto-generated randomly (#TCH-XXXX), see saveTeacher(). -->
+                <div class="table-responsive">
+                    <table class="styled-table perfect-lines" id="teacherTable">
+                        <thead>
+                            <tr>
+                                <th style="padding-left: 20px;">TEACHER INFO</th>
+                                <th>EMPLOYEE ID</th>
+                                <th>SECTION ASSIGNED</th>
+                                <th>ACCOUNT INFO</th>
+                                <th>STATUS</th>
+                                <th style="text-align: right; padding-right: 20px;">ACTIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows get inserted here at runtime by saveTeacher() -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination footer - NOTE: static placeholder, doesn't actually
+                     count rows or page through data yet -->
+                <div class="pagination-footer">
+                    <span class="showing-text">Showing 0 of 0 teachers</span>
+                    <div class="pagination-controls">
+                        <button class="page-btn">&lt;</button>
+                        <button class="page-btn active">1</button>
+                        <button class="page-btn">&gt;</button>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         ADD / EDIT TEACHER MODAL (popup form)
+         Hidden by default. Shown by openAdminModal('add') or
+         openAdminModal('edit', btn). Same form reused for both -
+         saveTeacher() checks the "editingRow" variable to decide
+         whether to update an existing row or create a new one.
+         ============================================================ -->
+    <div class="admin-modal-overlay" id="teacherModal">
+        <div class="admin-modal-box">
+            <div class="admin-modal-header">
+                <!-- Title text swapped between "Add New Teacher" / "Edit Teacher" via JS -->
+                <h2 class="admin-modal-title" id="modalTitle">Add New Teacher</h2>
+            </div>
+            <div class="admin-modal-body">
+                <fieldset class="admin-fieldset">
+                    <legend class="admin-legend"><span class="admin-legend-icon">🪪</span> Identity Details</legend>
+                    <div class="admin-form-group">
+                        <label class="admin-label">Full Name</label>
+                        <input type="text" id="teacherName" class="admin-input" placeholder="e.g. Jonathan Doe">
+                    </div>
+                    <div class="admin-form-group">
+                        <label class="admin-label">Assign Section</label>
+                        <input type="text" id="teacherSection" class="admin-input" placeholder="e.g. SC01, SC02">
+                    </div>
+                </fieldset>
+
+                <fieldset class="admin-fieldset">
+                    <legend class="admin-legend"><span class="admin-legend-icon">🔒</span> Access Credentials</legend>
+                    <div class="admin-flex-row">
+                        <div class="admin-flex-col">
+                            <label class="admin-label">Username</label>
+                            <div class="admin-input-wrapper">
+                                <span class="admin-input-icon">@</span>
+                                <input type="text" id="teacherUsername" class="admin-input with-icon" placeholder="username">
+                            </div>
+                        </div>
+                        <div class="admin-flex-col">
+                            <label class="admin-label">Temporary Password</label>
+                            <div class="admin-input-wrapper">
+                                <span class="admin-input-icon">🔑</span>
+                                <input type="password" id="teacherPassword" class="admin-input with-icon" placeholder="••••••••">
+                                <span class="admin-input-eye" onclick="toggleModalPassword()">👁</span>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="admin-modal-footer">
+                <button class="btn-ghost" onclick="closeAdminModal()">Cancel</button>
+                <button class="btn-solid" id="saveTeacherBtn" onclick="saveTeacher()">Add Teacher</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tracks which <tr> is being edited. null = we're adding a NEW teacher.
+        // Set inside openAdminModal('edit', ...) and read inside saveTeacher().
+        let editingRow = null;
+
+        // Opens/closes the "Logout" dropdown under the profile name (top-right)
+        function toggleDropdown() {
+            document.getElementById("profileDropdown").classList.toggle("show");
+        }
+
+        // Slides the mobile sidebar in/out (hamburger ☰ button, mobile view only)
+        function toggleSidebar() {
+            document.getElementById("mobileSidebar").classList.toggle("show-sidebar");
+            document.getElementById("sidebarOverlay").classList.toggle("show-overlay");
+        }
+
+        // Closes the profile dropdown if the user clicks anywhere OUTSIDE it
+        window.onclick = function (event) {
+            if (!event.target.closest('.profile-dropdown-container')) {
+                let dropdowns = document.getElementsByClassName("dropdown-menu");
+                for (let i = 0; i < dropdowns.length; i++) {
+                    let openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+
+        // Shows/hides the password text INSIDE the Add/Edit Teacher popup form
+        function toggleModalPassword() {
+            const pwdInput = document.getElementById("teacherPassword");
+            if (pwdInput.type === "password") {
+                pwdInput.type = "text";
+            } else {
+                pwdInput.type = "password";
+            }
+        }
+
+        // Shows/hides the password for ONE row in the teacher table (the 👁 icon per row)
+        function toggleRowPassword(iconElement) {
+            const pwdSpan = iconElement.previousElementSibling;
+            const actualPassword = pwdSpan.getAttribute("data-password");
+            if (pwdSpan.innerText === "••••••••") {
+                pwdSpan.innerText = actualPassword;
+            } else {
+                pwdSpan.innerText = "••••••••";
+            }
+        }
+
+        // Opens the Add/Edit Teacher popup.
+        // mode: 'add'  -> blank form, creates a new row when saved
+        // mode: 'edit' -> pre-fills the form from the clicked row's data (btn = the ✎ edit button clicked)
+        function openAdminModal(mode, btn = null) {
+            document.getElementById("teacherModal").classList.add("show");
+            document.getElementById("teacherPassword").type = "password"; // always reset to hidden on open
+            
+            if (mode === 'add') {
+                document.getElementById("modalTitle").innerText = "Add New Teacher";
+                document.getElementById("saveTeacherBtn").innerText = "Add Teacher";
+                document.getElementById("teacherName").value = "";
+                document.getElementById("teacherSection").value = "";
+                document.getElementById("teacherUsername").value = "";
+                document.getElementById("teacherPassword").value = "TempPass123!";
+                editingRow = null;
+            } else if (mode === 'edit') {
+                document.getElementById("modalTitle").innerText = "Edit Teacher";
+                document.getElementById("saveTeacherBtn").innerText = "Save Changes";
+                editingRow = btn.closest('tr'); // remember which row we're editing
+                
+                // Pull the current values straight out of the table row's HTML
+                // so the form opens pre-filled with this teacher's info
+                const name = editingRow.querySelector('.user-details strong').innerText;
+                const section = editingRow.cells[2].innerText.trim();
+                const username = editingRow.querySelector('.account-details .acc-line').innerText.replace('👤', '').trim();
+                const password = editingRow.querySelector('.pwd-text').getAttribute('data-password');
+                
+                document.getElementById("teacherName").value = name;
+                document.getElementById("teacherSection").value = section;
+                document.getElementById("teacherUsername").value = username;
+                document.getElementById("teacherPassword").value = password; 
+            }
+        }
+
+        function closeAdminModal() {
+            document.getElementById("teacherModal").classList.remove("show");
+        }
+
+        // Turns a full name into initials for the round avatar, e.g. "Jonathan Doe" -> "JD"
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        }
+
+        // Runs when "Add Teacher" / "Save Changes" is clicked.
+        // Validates the form, then either UPDATES the existing row (edit mode)
+        // or CREATES a brand new row and appends it to the table (add mode).
+        function saveTeacher() {
+            const name = document.getElementById("teacherName").value;
+            const section = document.getElementById("teacherSection").value;
+            const username = document.getElementById("teacherUsername").value;
+            const password = document.getElementById("teacherPassword").value;
+
+            // Basic required-field check (note: "section" is NOT required here)
+            if (!name || !username || !password) {
+                alert("Please fill in the required fields including the password.");
+                return;
+            }
+
+            const initials = getInitials(name);
+            // Email is auto-generated from the username - not a real mailbox, just for display
+            const email = username.toLowerCase() + "@edumanage.edu"; 
+            
+            if (editingRow) {
+                // EDIT MODE: overwrite the existing row's cells with the new values
+                editingRow.querySelector('.avatar').innerText = initials;
+                editingRow.querySelector('.user-details strong').innerText = name;
+                editingRow.querySelector('.user-details span').innerText = email;
+                editingRow.cells[2].innerHTML = `<span style="font-weight: 600; color: #333;">${section}</span>`;
+                editingRow.querySelector('.account-details').innerHTML = `
+                    <div class="acc-line"><span style="color:#777">👤</span> ${username}</div>
+                    <div class="acc-line text-gray">
+                        <span style="color:#e6a838">🔒</span> 
+                        <span class="pwd-text" data-password="${password}">••••••••</span> 
+                        <span class="eye-icon" onclick="toggleRowPassword(this)">👁</span>
+                    </div>
+                `;
+            } else {
+                // ADD MODE: build a brand new <tr> and append it to the table body
+                const tbody = document.querySelector("#teacherTable tbody");
+                const newRow = document.createElement("tr");
+                // Random 4-digit employee ID - NOT guaranteed unique, just a placeholder
+                const randomId = "#TCH-" + Math.floor(1000 + Math.random() * 9000);
+                
+                newRow.innerHTML = `
+                    <td style="padding-left: 20px;">
+                        <div class="user-info-cell">
+                            <div class="avatar bg-teal-light">${initials}</div>
+                            <div class="user-details">
+                                <strong style="color: #000;">${name}</strong>
+                                <span>${email}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-gray">${randomId}</td>
+                    <td><span style="font-weight: 600; color: #333;">${section}</span></td>
+                    <td>
+                        <div class="account-details">
+                            <div class="acc-line"><span style="color:#777">👤</span> ${username}</div>
+                            <div class="acc-line text-gray">
+                                <span style="color:#e6a838">🔒</span> 
+                                <span class="pwd-text" data-password="${password}">••••••••</span> 
+                                <span class="eye-icon" onclick="toggleRowPassword(this)">👁</span>
+                            </div>
+                        </div>
+                    </td>
+                    <!-- New teachers always start as "Active" - there's no UI to set status on creation yet -->
+                    <td><span class="status-pill active"><span class="dot"></span> Active</span></td>
+                    <td style="padding-right: 20px;">
+                        <div class="action-cells">
+                            <button class="icon-btn" title="Edit" onclick="openAdminModal('edit', this)">✎</button>
+                            <button class="icon-btn trash" title="Delete" onclick="deleteTeacher(this)">🗑</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(newRow);
+            }
+            closeAdminModal();
+        }
+
+        // Removes a teacher row after a confirmation prompt (no undo!)
+        function deleteTeacher(btn) {
+            if(confirm("Are you sure you want to remove this teacher?")) {
+                btn.closest('tr').remove();
+            }
+        }
+    </script>
+</body>
+
+</html>

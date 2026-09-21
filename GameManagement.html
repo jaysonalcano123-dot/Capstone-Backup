@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Management</title>
+    <link rel="stylesheet" href="global-style.css">
+</head>
+<body>
+
+    <div class="layout-container">
+        
+        <!-- ============================================================
+             SIDEBAR (same nav as every other admin page — see
+             AdminDashboard.html for the fuller commented version)
+             ============================================================ -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="AdminDashboard.html" class="nav-item">
+                    <img src="images/apps.png" alt="Dashboard Icon" class="nav-icon">
+                    Dashboard
+                </a>
+                <a href="StudentAccountManagement.html" class="nav-item">
+                    <img src="images/graduation-cap.png" alt="Student Icon" class="nav-icon">
+                    Student Account Management
+                </a>
+                <!-- "active" is hardcoded here since this page has no
+                     auto-highlight script (unlike AdminDashboard.html) -->
+                <a href="GameManagement.html" class="nav-item active">
+                    <img src="images/console-controller.png" alt="Game Icon" class="nav-icon">
+                    Game Management
+                </a>
+                <a href="StudentGameProgress.html" class="nav-item">
+                    <img src="images/chart-histogram.png" alt="Progress Icon" class="nav-icon">
+                    Student Game Progress
+                </a>
+                <a href="StudentAssessment.html" class="nav-item">
+                    <img src="images/assessment.png" alt="Assessment Icon" class="nav-icon">
+                    Student Assessment
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="admin-avatar">A</div>
+                <div class="admin-info">
+                    <strong>Admin (Name)</strong>
+                    <span>Admin</span>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <!-- Topbar: page title + profile dropdown (logout) -->
+            <header class="topbar">
+                <h1 class="page-title">Game Management</h1>
+
+                <div class="profile-dropdown-container">
+                    <div class="user-profile" onclick="toggleDropdown()">
+                        <img src="Images/bell.png" alt="Notification"
+                            class="topbar-icon">
+                        <span class="user-name">Sample Sample</span>
+                        <div class="profile-pic">      
+                        </div>
+                        <span class="dropdown-icon">▼</span>
+                    </div>
+
+                    <div class="dropdown-menu" id="profileDropdown">
+                        <button class="dropdown-item text-red" onclick="window.location.href='Login Page.html'">
+                            <img src="Images/leave.png" alt="Logout" class="topbar-icon">
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="page-body">
+                
+                <!-- Top-level summary stats for the whole game/quiz system.
+                     All numbers here are hardcoded placeholders. -->
+                <div class="stats-card-grid-4">
+                    <div class="inner-stat-card">
+                        <div class="stat-card-header">
+                            <span>Total Quizzes</span>
+                            <span class="placeholder-icon">[ICON]</span>
+                        </div>
+                        <div class="stat-card-body flex-center-vertical">
+                            <span class="text-huge">10</span>
+                        </div>
+                    </div>
+
+                    <div class="inner-stat-card">
+                        <div class="stat-card-header">
+                            <span>Completed Chapters</span>
+                            <span class="placeholder-icon">[ICON]</span>
+                        </div>
+                        <div class="stat-card-body flex-center-vertical">
+                            <span class="text-huge">2</span>
+                        </div>
+                    </div>
+
+                    <!-- Note: this card uses flex-column-center instead of
+                         flex-center-vertical since it shows a title + label
+                         stacked, rather than a single big number -->
+                    <div class="inner-stat-card">
+                        <div class="stat-card-header">
+                            <span>Active Chapters</span>
+                            <span class="placeholder-icon">[ICON]</span>
+                        </div>
+                        <div class="stat-card-body flex-column-center">
+                            <span class="text-sub">[Title]</span>
+                            <strong class="text-medium">Chapter n</strong>
+                        </div>
+                    </div>
+
+                    <div class="inner-stat-card">
+                        <div class="stat-card-header">
+                            <span>Locked Chapters</span>
+                            <span class="placeholder-icon">[ICON]</span>
+                        </div>
+                        <div class="stat-card-body flex-center-vertical">
+                            <span class="text-huge">5</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================================
+                     QUIZ / CHAPTER MANAGEMENT PANEL
+                     Two views toggled by switchTab(): "All Quizzes" (flat
+                     list of every quiz) and "Chapter Management" (lock/
+                     unlock chapters). Only one of #view-all / #view-chapter
+                     is visible at a time — controlled via inline style
+                     display:none/block, not a CSS class.
+                     ============================================================ -->
+                <div class="bordered-panel">
+                    <div class="panel-tabs">
+                        <div class="tab-button-group">
+                            <button id="btn-all" class="btn tab-btn active-tab" onclick="switchTab('all')">All Quizzes</button>
+                            <button id="btn-chapter" class="btn tab-btn outline-tab" onclick="switchTab('chapter')">Chapter Management</button>
+                        </div>
+                    </div>
+
+                    <!-- --- "All Quizzes" view (visible by default) ---
+                         Edit (✎) opens the Edit Quiz modal via openQuizModal().
+                         Delete (🗑) removes the row directly, no confirmation.
+                         The ☰ "Options" button has no handler wired up yet. -->
+                    <div class="table-responsive" id="view-all">
+                        <table class="data-table shaded-header text-center-table">
+                            <thead>
+                                <tr>
+                                    <th>Quiz Title</th>
+                                    <th>Chapter</th>
+                                    <th>Features</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>History of IT</strong></td>
+                                    <td>1</td>
+                                    <td><strong>Shuffle</strong></td>
+                                    <td><strong>Completed</strong></td>
+                                    <td>
+                                        <div class="action-cells center-actions">
+                                            <button class="icon-btn" onclick="openQuizModal(this)" title="Edit">✎</button>
+                                            <button class="icon-btn trash" title="Delete" onclick="this.closest('tr').remove()">🗑</button>
+                                            <button class="icon-btn" title="Options">☰</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Cybersecurity Basics</strong></td>
+                                    <td>2</td>
+                                    <td><strong>Shuffle</strong></td>
+                                    <td><strong>Completed</strong></td>
+                                    <td>
+                                        <div class="action-cells center-actions">
+                                            <button class="icon-btn" onclick="openQuizModal(this)" title="Edit">✎</button>
+                                            <button class="icon-btn trash" title="Delete" onclick="this.closest('tr').remove()">🗑</button>
+                                            <button class="icon-btn" title="Options">☰</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- --- "Chapter Management" view (hidden by default) ---
+                         Lock/Unlock button calls toggleChapterLock(), which
+                         flips the status text + color (green/blue/red) and
+                         swaps the button label between Lock/Unlock. -->
+                    <div class="table-responsive" id="view-chapter" style="display: none;">
+                        <table class="data-table shaded-header text-center-table">
+                            <thead>
+                                <tr>
+                                    <th>Quiz Assigned</th>
+                                    <th>Chapter No.</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>History of IT</strong></td>
+                                    <td>1</td>
+                                    <td><strong class="status-text text-green">Completed</strong></td>
+                                    <td><button class="btn btn-pill-outline" onclick="toggleChapterLock(this)">Lock</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Cybersecurity Basics</strong></td>
+                                    <td>2</td>
+                                    <td><strong class="status-text text-green">Completed</strong></td>
+                                    <td><button class="btn btn-pill-outline" onclick="toggleChapterLock(this)">Lock</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Database Management</strong></td>
+                                    <td>3</td>
+                                    <td><strong class="status-text text-blue">Active</strong></td>
+                                    <td><button class="btn btn-pill-outline" onclick="toggleChapterLock(this)">Lock</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Networking Fundamentals</strong></td>
+                                    <td>4</td>
+                                    <td><strong class="status-text text-red">Locked</strong></td>
+                                    <td><button class="btn btn-pill-outline" onclick="toggleChapterLock(this)">Unlock</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         EDIT QUIZ MODAL
+         Opened by the ✎ button in the "All Quizzes" table via
+         openQuizModal(). Two-column layout:
+           - Left: quiz title, shuffle toggles, and a "question
+             builder" form for adding one question at a time.
+           - Right: a running list of questions added so far.
+         NOTE: currently, questions added here (insertQuestion()) are
+         only added to the in-modal preview table — they are NOT
+         actually saved back onto the quiz row when "Save Changes" is
+         clicked. saveQuiz() only updates the quiz TITLE, not the
+         question list itself. Worth flagging for whoever wires up
+         the backend/save logic.
+         ============================================================ -->
+    <div class="modal-overlay" id="quizModalOverlay">
+        <div class="modal-box" style="max-width: 900px; max-height: 90vh; display: flex; flex-direction: column;">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title">Edit Quiz Details</h2>
+                    <p class="modal-subtitle">Configure quiz settings and manage questions below.</p>
+                </div>
+                <button class="modal-close-btn" onclick="closeQuizModal()" title="Close">✕</button>
+            </div>
+
+            <div class="modal-body quiz-modal-layout" style="overflow-y: auto; flex: 1;">
+                
+                <!-- --- Left column: settings + question builder --- -->
+                <div class="quiz-panel">
+                    <div class="field-group">
+                        <label class="field-label">Quiz Title</label>
+                        <input type="text" id="quizTitleInput" class="modal-input" placeholder="e.g. History of IT" style="font-size: 16px; font-weight: 500;">
+                    </div>
+                    
+                    <!-- Shuffle toggles — currently visual only, their checked
+                         state isn't read/saved anywhere in the JS below -->
+                    <div class="field-group">
+                        <label class="field-label">Quiz Features</label>
+                        <div class="feature-toggles-container">
+                            <label class="feature-toggle">
+                                <input type="checkbox" id="chkShuffleOptions">
+                                <div class="toggle-bg"></div>
+                                Shuffle Options
+                            </label>
+                            <label class="feature-toggle">
+                                <input type="checkbox" id="chkShuffleQuestions">
+                                <div class="toggle-bg"></div>
+                                Shuffle Questions
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Question builder: one question + 4 multiple-choice
+                         options + a radio button per option marking which
+                         one is correct. "+ Add Question to Quiz" calls
+                         insertQuestion(), which validates that a question
+                         and a correct answer were provided, then appends
+                         a row to the questions table on the right and
+                         clears these inputs for the next question. -->
+                    <div class="question-builder-card">
+                        <span class="card-header-label">Question Builder</span>
+                        <textarea id="questionText" class="modal-input" rows="2" placeholder="Type your question here..." style="resize: none; margin-bottom: 16px;"></textarea>
+                        
+                        <div class="options-container">
+                            <div class="option-row">
+                                <label class="opt-radio-label" title="Mark Option A as correct">
+                                    <input type="radio" name="correctOption" value="A">
+                                    <span class="opt-letter">A</span>
+                                </label>
+                                <input type="text" id="optA" class="modal-input" placeholder="Enter option A...">
+                            </div>
+                            <div class="option-row">
+                                <label class="opt-radio-label" title="Mark Option B as correct">
+                                    <input type="radio" name="correctOption" value="B">
+                                    <span class="opt-letter">B</span>
+                                </label>
+                                <input type="text" id="optB" class="modal-input" placeholder="Enter option B...">
+                            </div>
+                            <div class="option-row">
+                                <label class="opt-radio-label" title="Mark Option C as correct">
+                                    <input type="radio" name="correctOption" value="C">
+                                    <span class="opt-letter">C</span>
+                                </label>
+                                <input type="text" id="optC" class="modal-input" placeholder="Enter option C...">
+                            </div>
+                            <div class="option-row">
+                                <label class="opt-radio-label" title="Mark Option D as correct">
+                                    <input type="radio" name="correctOption" value="D">
+                                    <span class="opt-letter">D</span>
+                                </label>
+                                <input type="text" id="optD" class="modal-input" placeholder="Enter option D...">
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn btn-outline-teal" onclick="insertQuestion()" style="margin-top: 10px; width: 100%; justify-content: center; font-weight: bold; font-size: 15px; padding: 12px;">
+                            + Add Question to Quiz
+                        </button>
+                    </div>
+                </div>
+
+                <!-- --- Right column: live preview list of questions added
+                     during this editing session. Starts empty each time
+                     the modal opens (see openQuizModal() below). Each row
+                     shows a truncated (30-char) preview of the question
+                     text, with the full text available via the title
+                     attribute (hover tooltip). --- -->
+                <div class="quiz-panel quiz-right-panel">
+                    <div style="overflow-y: auto; flex: 1; min-height: 250px;">
+                        <table class="data-table styled-table text-center-table" id="questionsTable" style="margin-top: 0; border: none;">
+                            <thead style="position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                                <tr>
+                                    <th style="width: 55%; padding: 16px 20px;">Question</th>
+                                    <th>Correct Answer</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="closeQuizModal()">Cancel</button>
+                <button type="button" class="btn-modal-submit" onclick="saveQuiz()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tracks which <tr> in the "All Quizzes" table is currently
+        // being edited, so saveQuiz() knows where to write the updated title
+        let currentQuizRow = null;
+
+        // Switches between the "All Quizzes" and "Chapter Management"
+        // views by toggling which tab button looks active and which
+        // table is visible (inline display style, not a CSS class)
+        function switchTab(tabName) {
+            const btnAll = document.getElementById('btn-all');
+            const btnChapter = document.getElementById('btn-chapter');
+            const viewAll = document.getElementById('view-all');
+            const viewChapter = document.getElementById('view-chapter');
+
+            if (tabName === 'all') {
+                btnAll.className = 'btn tab-btn active-tab';
+                btnChapter.className = 'btn tab-btn outline-tab';
+                viewAll.style.display = 'block';
+                viewChapter.style.display = 'none';
+            } else {
+                btnAll.className = 'btn tab-btn outline-tab';
+                btnChapter.className = 'btn tab-btn active-tab';
+                viewAll.style.display = 'none';
+                viewChapter.style.display = 'block';
+            }
+        }
+
+        // Flips a chapter row between Active/Completed states and Locked,
+        // updating both the status text/color and the button label
+        function toggleChapterLock(button) {
+            const row = button.closest('tr');
+            const statusCell = row.querySelector('.status-text');
+            const currentStatus = statusCell.textContent.trim().toLowerCase();
+
+            if (currentStatus === 'locked' || currentStatus === 'lock') {
+                statusCell.textContent = 'Active';
+                statusCell.className = 'status-text text-blue'; 
+                statusCell.style.color = '#3b82f6';
+                button.textContent = 'Lock';
+            } else {
+                statusCell.textContent = 'Locked';
+                statusCell.className = 'status-text text-red';
+                statusCell.style.color = '#ef4444';
+                button.textContent = 'Unlock';
+            }
+        }
+        // NOTE: this only ever sets status to "Active" when unlocking —
+        // it doesn't distinguish between a chapter that was "Completed"
+        // vs "Active" before being locked, so unlocking a previously
+        // Completed chapter will show it as Active instead of Completed.
+
+        function toggleDropdown() {
+            document.getElementById("profileDropdown").classList.toggle("show");
+        }
+
+        // Closes the profile dropdown when clicking anywhere outside it
+        window.onclick = function(event) {
+            if (!event.target.closest('.profile-dropdown-container')) {
+                let dropdowns = document.getElementsByClassName("dropdown-menu");
+                for (let i = 0; i < dropdowns.length; i++) {
+                    let openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+
+        // Opens the Edit Quiz modal for the row that was clicked,
+        // pre-filling the title and resetting the shuffle toggles and
+        // question list to a blank state (question list is NOT loaded
+        // from any saved data — it always starts empty)
+        function openQuizModal(button) {
+            currentQuizRow = button.closest('tr');
+            const quizTitle = currentQuizRow.cells[0].textContent.trim();
+            
+            document.getElementById('quizTitleInput').value = quizTitle;
+            document.getElementById('chkShuffleOptions').checked = false;
+            document.getElementById('chkShuffleQuestions').checked = false;
+            
+            clearQuestionInputs();
+            document.querySelector('#questionsTable tbody').innerHTML = '';
+
+            document.getElementById("quizModalOverlay").classList.add("show-modal");
+        }
+
+        function closeQuizModal() {
+            document.getElementById("quizModalOverlay").classList.remove("show-modal");
+            currentQuizRow = null;
+        }
+
+        // Resets the question builder inputs (text + 4 options + radio
+        // selection) back to blank, ready for the next question
+        function clearQuestionInputs() {
+            document.getElementById('questionText').value = '';
+            document.getElementById('optA').value = '';
+            document.getElementById('optB').value = '';
+            document.getElementById('optC').value = '';
+            document.getElementById('optD').value = '';
+            
+            const radios = document.getElementsByName('correctOption');
+            for (let i = 0; i < radios.length; i++) {
+                radios[i].checked = false;
+            }
+        }
+
+        // Validates the question builder form, then appends a new row
+        // to the questions preview table (right column) showing a
+        // truncated question + its correct answer letter
+        function insertQuestion() {
+            const questionText = document.getElementById('questionText').value.trim();
+            
+            let correctAnswer = '';
+            const radios = document.getElementsByName('correctOption');
+            for (let i = 0; i < radios.length; i++) {
+                if (radios[i].checked) {
+                    correctAnswer = radios[i].value;
+                    break;
+                }
+            }
+
+            if (!questionText || !correctAnswer) {
+                alert("Please enter a question and select the correct answer.");
+                return;
+            }
+
+            const tbody = document.querySelector('#questionsTable tbody');
+            const newRow = document.createElement('tr');
+
+            // Truncate long questions to 30 chars in the preview table;
+            // full text is still available via the title="" tooltip
+            const displayQuestion = questionText.length > 30 ? questionText.substring(0, 30) + '...' : questionText;
+
+            newRow.innerHTML = `
+                <td style="text-align: left; padding-left: 15px;" title="${questionText}">${displayQuestion}</td>
+                <td><strong>${correctAnswer}</strong></td>
+                <td>
+                    <button class="icon-btn trash" title="Delete" onclick="this.closest('tr').remove()" style="font-size: 16px;">🗑</button>
+                </td>
+            `;
+
+            tbody.appendChild(newRow);
+            clearQuestionInputs(); // ready for the next question
+        }
+
+        // "Save Changes" handler — only updates the quiz title on the
+        // original table row. See the note above the modal markup:
+        // the questions added in this session are NOT persisted here.
+        function saveQuiz() {
+            if (currentQuizRow) {
+                const newTitle = document.getElementById('quizTitleInput').value.trim();
+                if(newTitle) {
+                    currentQuizRow.cells[0].innerHTML = `<strong>${newTitle}</strong>`;
+                }
+            }
+            closeQuizModal();
+        }
+    </script>
+</body>
+</html>

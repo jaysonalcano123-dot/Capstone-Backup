@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="global-style.css">
+</head>
+
+<body>
+
+    <!-- ============================================================
+         PAGE LAYOUT WRAPPER
+         Holds the sidebar (left nav) + main content area (right).
+         ============================================================ -->
+    <div class="layout-container">
+
+        <!-- Dark overlay shown behind the sidebar on mobile when it's open.
+             Clicking it closes the sidebar (calls toggleSidebar()). -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <!-- ============================================================
+             SIDEBAR
+             Left navigation menu, shared across all admin pages.
+             On mobile this slides in/out via the "mobileSidebar" ID
+             and the show-sidebar class (toggled by toggleSidebar()).
+             ============================================================ -->
+        <aside class="sidebar" id="mobileSidebar">
+            <!-- Empty header — likely intended for a logo, left blank for now -->
+            <div class="sidebar-header">
+            </div>
+
+            <!-- Nav links to each admin page. The "active" class marks
+                 the current page and is auto-set by the script below. -->
+            <nav class="sidebar-nav">
+                <a href="AdminDashboard.html" class="nav-item active"  >
+                    <img src="images/apps.png" alt="Dashboard Icon" class="nav-icon">
+                    Dashboard
+                </a>
+                <a href="StudentAccountManagement.html" class="nav-item">
+                    <img src="images/graduation-cap.png" alt="Student Icon" class="nav-icon">
+                    Student Account Management
+                </a>
+                <a href="GameManagement.html" class="nav-item">
+                    <img src="images/console-controller.png" alt="Game Icon" class="nav-icon">
+                    Game Management
+                </a>
+                <a href="StudentGameProgress.html" class="nav-item">
+                    <img src="images/chart-histogram.png" alt="Progress Icon" class="nav-icon">
+                    Student Game Progress
+                </a>
+                <a href="StudentAssessment.html" class="nav-item">
+                    <img src="images/assessment.png" alt="Assessment Icon" class="nav-icon">
+                    Student Assessment
+                </a>
+            </nav>
+
+            <!-- Auto-highlights the current page's nav link on load, by
+                 comparing the URL's filename against each link's href.
+                 NOTE: this means the hardcoded "active" class above on
+                 the Dashboard link gets overridden/recomputed here. -->
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    let currentPage = window.location.pathname.split("/").pop() || "AdminDashboard.html";
+                    let navLinks = document.querySelectorAll(".sidebar-nav .nav-item");
+
+                    navLinks.forEach(link => {
+                        link.classList.remove("active");
+                        if (link.getAttribute("href") === currentPage) {
+                            link.classList.add("active");
+                        }
+                    });
+                });
+            </script>
+
+            <!-- Bottom-of-sidebar admin info (avatar + name/role).
+                 "A" and "Admin (Name)" look like placeholders —
+                 replace with real logged-in admin data. -->
+            <div class="sidebar-footer">
+                <div class="admin-avatar">A</div>
+                <div class="admin-info">
+                    <strong>Admin (Name)</strong>
+                    <span>Admin</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ============================================================
+             MAIN CONTENT AREA
+             Everything to the right of the sidebar: topbar + page body.
+             ============================================================ -->
+        <div class="main-content">
+
+            <!-- --- Top bar: page title, notifications, profile menu --- -->
+            <header class="topbar">
+                <!-- Hamburger icon, only visible on mobile — opens the sidebar -->
+                <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+
+                <h1 class="page-title">Dashboard</h1>
+                <div class="spacer"></div> <!-- pushes profile section to the right -->
+
+                <!-- Profile section: bell icon, username, avatar, dropdown arrow.
+                     Clicking anywhere on .user-profile toggles the dropdown. -->
+                <div class="profile-dropdown-container">
+                    <div class="user-profile" onclick="toggleDropdown()">
+                        <img src="Images/bell.png" alt="Notification"
+                            class="topbar-icon">
+                        <span class="user-name">Sample Sample</span>
+                        <!-- Placeholder for the admin's profile picture -->
+                        <div class="profile-pic">      
+                        </div>
+                        <span class="dropdown-icon">▼</span>
+                    </div>
+
+                    <!-- Dropdown menu (hidden by default, shown via .show class) -->
+                    <div class="dropdown-menu" id="profileDropdown">
+                        <button class="dropdown-item text-red" onclick="window.location.href='Login Page.html'">
+                            <img src="Images/leave.png" alt="Logout" class="topbar-icon">
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- --- Page body: dashboard stat cards --- -->
+            <main class="page-body">
+                <div class="dashboard-grid">
+
+                    <!-- Big featured card: average score across all students -->
+                    <div class="card card-main">
+                        <h2>Total Average Student Score</h2>
+                        <div class="card-content">
+                            <span class="text-massive text-green">85%</span>
+                        </div>
+                    </div>
+
+                    <!-- Total number of enrolled students -->
+                    <div class="card card-top-right">
+                        <h2>No. of Students Enrolled</h2>
+                        <div class="card-content">
+                            <span class="text-massive">2,480</span>
+                        </div>
+                    </div>
+
+                    <!-- Average score per chapter, shown as "X/10" -->
+                    <div class="card card-mid-right">
+                        <h2>Average Score Per Chapter</h2>
+                        <div class="card-content">
+                            <span class="text-massive">8.2<span style="font-size: 24px; color: #777;">/10</span></span>
+                        </div>
+                    </div>
+
+                    <!-- Pending assessments awaiting admin review -->
+                    <div class="card card-bottom-left">
+                        <h2>To Check</h2>
+                        <div class="card-content">
+                            <span class="text-massive">14</span>
+                            <span style="margin-left: 10px; color: #777;">Pending Assessments</span>
+                        </div>
+                    </div>
+
+                    <!-- Overall student progress percentage -->
+                    <div class="card card-bottom-right">
+                        <h2>Student Progress</h2>
+                        <div class="card-content">
+                            <span class="text-massive">92%</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- NOTE: all stat values above (85%, 2,480, 8.2/10, 14, 92%)
+                     are hardcoded placeholders — replace with real data
+                     from the backend/API. -->
+            </main>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         PAGE SCRIPTS
+         Handles: profile dropdown toggle, mobile sidebar toggle,
+         and closing the dropdown when clicking outside of it.
+         ============================================================ -->
+    <script>
+        // Shows/hides the profile dropdown menu in the topbar
+        function toggleDropdown() {
+            document.getElementById("profileDropdown").classList.toggle("show");
+        }
+
+        // Slides the sidebar in/out on mobile, and toggles the dark overlay
+        function toggleSidebar() {
+            document.getElementById("mobileSidebar").classList.toggle("show-sidebar");
+            document.getElementById("sidebarOverlay").classList.toggle("show-overlay");
+        }
+
+        // Closes the profile dropdown if the user clicks anywhere outside it
+        window.onclick = function (event) {
+            if (!event.target.closest('.profile-dropdown-container')) {
+                let dropdowns = document.getElementsByClassName("dropdown-menu");
+                for (let i = 0; i < dropdowns.length; i++) {
+                    let openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,374 @@
+/* ============================================================
+   GLOBAL RESET & BASE STYLES
+   Applies to the entire site — removes default browser spacing
+   and sets the default font for every element.
+   ============================================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ------------------------------------------------------------
+   THEME COLORS (CSS Variables)
+   Change these values to re-theme the whole site at once.
+   ------------------------------------------------------------ */
+:root {
+    --primary: #5bbd5a;        /* main brand green (buttons, links, accents) */
+    --primary-dark: #3a8a3a;   /* darker green, used for hover states */
+    --primary-teal: #36a68f;   /* secondary accent color (gradients) */
+    --bg-light: #f9fafa;       /* default page background */
+    --text-main: #333;         /* main body text color */
+    --text-gray: #777;         /* muted/secondary text color */
+}
+
+body {
+    background-color: var(--bg-light);
+    color: var(--text-main);
+    overflow-x: hidden; /* prevents horizontal scroll from full-width sections */
+}
+
+
+/* ============================================================
+   LANDING PAGE STYLES
+   Everything below (until the LOGIN PAGE section) styles the
+   marketing/landing page: header, hero, feature sections, etc.
+   ============================================================ */
+.page-container {
+    width: 100%;
+}
+
+/* --- Top navigation bar (sticky header with login button) --- */
+header {
+    display: flex;
+    justify-content: flex-end;
+    padding: 20px 50px;
+    background-color: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    position: sticky; /* stays pinned to top when scrolling */
+    top: 0;
+    z-index: 100;
+}
+
+/* "Log In" button in the header */
+.btn-login {
+    background-color: var(--primary);
+    color: #fff;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.btn-login:hover { background-color: var(--primary-dark); }
+
+/* Generic wrapper used for each page section (adds horizontal/vertical spacing) */
+.section-container {
+    padding: 80px 10vw;
+}
+
+/* --- Hero section (big intro area at top of landing page) --- */
+#hero {
+    min-height: 80vh;
+    background: linear-gradient(135deg, rgba(91,189,90,0.1) 0%, rgba(54,166,143,0.1) 100%);
+}
+
+/* Utility class: centers content in a column (used inside hero, etc.) */
+.flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+/* Utility classes: reusable helpers, similar to Bootstrap/Tailwind style */
+.text-center { text-align: center; }
+.mb-50 { margin-bottom: 50px; }
+
+/* Big gradient headline text in the hero section */
+.hero-title {
+    font-size: 80px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: #111;
+    margin-bottom: 30px;
+    background: linear-gradient(45deg, var(--primary), var(--primary-teal));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent; /* makes gradient show through the text */
+}
+
+/* Main call-to-action button (e.g. "Download") in the hero */
+.btn-download {
+    background-color: #111;
+    color: #fff;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.btn-download:hover { transform: translateY(-3px); } /* subtle lift on hover */
+
+/* Section heading style, used above each content block */
+.section-title {
+    font-size: 32px;
+    margin-bottom: 40px;
+    color: #111;
+    text-align: center;
+}
+
+/* Slightly smaller heading style, used within content-split sections */
+.huge-title {
+    font-size: 40px;
+    color: #111;
+}
+
+/* --- "Content split" sections: text on one side, image on the other --- */
+.content-split {
+    display: flex;
+    align-items: center;
+    gap: 50px;
+}
+/* Add .reverse to flip the order (image left, text right) */
+.content-split.reverse {
+    flex-direction: row-reverse;
+}
+
+.text-content { flex: 1; }
+.image-content { flex: 1; display: flex; justify-content: center; }
+
+/* Paragraph text used inside content-split sections */
+.description-text {
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--text-gray);
+}
+
+/* Generic styled image (used for screenshots/mockups) */
+.placeholder-img {
+    max-width: 100%;
+    height: auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+.rounded { border-radius: 20px; } /* add to .placeholder-img for rounded corners */
+
+/* --- Feature cards grid (the "Features" section with multiple cards) --- */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* responsive columns */
+    gap: 30px;
+}
+
+/* Individual feature card */
+.feature-card {
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    text-align: center;
+    transition: transform 0.2s;
+    border: 1px solid #eaeaea;
+}
+.feature-card:hover { transform: translateY(-5px); } /* lift effect on hover */
+
+/* Image inside a feature card */
+.feature-img-wrapper img {
+    border-radius: 8px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.feature-title {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #111;
+}
+.feature-desc {
+    font-size: 14px;
+    color: var(--text-gray);
+    line-height: 1.5;
+}
+
+
+/* ============================================================
+   LOGIN PAGE STYLES
+   Everything below styles the separate login/signup page
+   (split-screen layout: image panel + form panel).
+   ============================================================ */
+
+/* Full-screen two-column layout wrapper */
+.split-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* Left side: decorative background image/gradient panel (hidden on mobile) */
+.left-panel {
+    flex: 1.2;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-teal) 100%);
+    background-image: url('https://placehold.co/1000x1000/36a68f/ffffff?text=IN-SEC+Background');
+    background-size: cover;
+    background-position: center;
+}
+
+/* Right side: contains the actual login/signup form */
+.right-panel {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff;
+    padding: 40px;
+}
+
+/* Constrains the form width so it doesn't stretch too wide */
+.form-container {
+    width: 100%;
+    max-width: 400px;
+}
+
+/* "Back" button/link above the form */
+.btn-back {
+    background: none;
+    border: none;
+    color: var(--text-gray);
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 30px;
+    padding: 0;
+}
+.btn-back:hover { color: var(--primary); }
+
+/* "Log In" / "Sign Up" heading on the form */
+.form-title {
+    font-size: 32px;
+    margin-bottom: 25px;
+    color: #111;
+}
+
+/* --- Role switcher (e.g. toggle between "Student" / "Teacher" login) --- */
+.role-toggle {
+    display: flex;
+    background: #f0f0f0;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    padding: 5px;
+}
+
+.toggle-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    font-weight: 600;
+    color: #555;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+/* Applied via JS to whichever toggle option is currently selected */
+.toggle-btn.active {
+    background: #fff;
+    color: var(--primary);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* --- Form input fields (email, password, etc.) --- */
+.input-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.input-group label {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.input-group input {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.input-group input:focus { border-color: var(--primary); } /* highlight on focus */
+
+/* Row containing "Remember me" checkbox + "Forgot password?" link */
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    font-size: 13px;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #555;
+}
+
+.forgot-password {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+.forgot-password:hover { text-decoration: underline; }
+
+/* Main submit button for the login/signup form */
+.btn-submit {
+    width: 100%;
+    padding: 14px;
+    background-color: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.btn-submit:hover { background-color: var(--primary-dark); }
+
+
+/* ============================================================
+   RESPONSIVE / MOBILE STYLES
+   Overrides applied on screens 900px wide or smaller
+   (tablets and phones).
+   ============================================================ */
+@media screen and (max-width: 900px) {
+
+    /* --- Landing Page Responsive --- */
+    /* Stack text/image sections vertically instead of side-by-side */
+    .content-split, .content-split.reverse {
+        flex-direction: column;
+        text-align: center;
+        gap: 30px;
+    }
+    .hero-title { font-size: 50px; }       /* shrink big headline on small screens */
+    .section-container { padding: 60px 20px; }
+    header { padding: 15px 20px; }
+
+    /* --- Login Page Responsive --- */
+    .split-container {
+        flex-direction: column; /* stack panels instead of side-by-side */
+    }
+    .left-panel {
+        display: none; /* Hide image on mobile for clean form view */
+    }
+    .right-panel {
+        padding: 20px;
+    }
+}

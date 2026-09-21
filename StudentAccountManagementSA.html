@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Account Management - Super Admin</title>
+    <link rel="stylesheet" href="global-SAStyle.css">
+</head>
+<body class="super-admin">
+    <!-- ============================================================
+         STUDENT ACCOUNT MANAGEMENT (Super Admin view)
+         This page lets a Super Admin add / edit / delete student
+         login accounts. Data here is NOT saved anywhere (no backend
+         yet) - everything lives only in the page's HTML/JS while it's
+         open, and resets on refresh.
+         ============================================================ -->
+
+    <div class="layout-container">
+        
+        <!-- Left navigation sidebar (same on every Super Admin page) -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="TeacherAccountManagement.html" class="nav-item">
+                    <img src="Images/chalkboard-user.png" alt="Teacher Icon" class="nav-icon">
+                    Teacher Account Management
+                </a>
+                <a href="StudentAccountManagementSA.html" class="nav-item active">
+                    <img src="Images/graduation-cap.png" alt="Student Icon" class="nav-icon">
+                    Student Account Management
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="admin-avatar">S</div>
+                <div class="admin-info">
+                    <strong>Sample (Name)</strong>
+                    <span>Super Admin</span>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            
+            <!-- Top bar: notification bell + profile name + logout dropdown -->
+            <header class="topbar">
+                <div class="spacer"></div>
+                
+                <div class="profile-dropdown-container">
+                    <div class="user-profile" onclick="toggleDropdown()">
+                        <img src="Images/bell.png" alt="Notification" class="topbar-icon">
+                        <span class="user-name">Sample Sample</span>
+                        <span class="dropdown-icon">▼</span>
+                    </div>
+
+                    <div class="dropdown-menu" id="profileDropdown">
+                        <button class="dropdown-item text-red" onclick="window.location.href='Login Page.html'">
+                            <img src="Images/leave.png" alt="Logout" class="topbar-icon">
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="page-body full-white-bg">
+                
+                <!-- Page title + top-right action buttons -->
+                <div class="header-actions-row">
+                    <h1 class="page-title-large">Student Account Management</h1>
+                    <div class="header-actions">
+                        <!-- NOTE: "Insert Record" currently has no onclick/function wired up yet -->
+                        <button class="btn btn-primary">
+                            <span class="icon" style="font-size: 14px;">+</span> Insert Record
+                        </button>
+                        <!-- Opens the Add Student popup form (see openStudentModal() below) -->
+                        <button class="btn btn-primary" onclick="openStudentModal('add')">
+                            <span class="icon" style="font-size: 14px;">+</span> Add Student
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search box + section filter dropdown (search/filter logic not implemented yet) -->
+                <div class="filter-bar">
+                    <div class="search-box full-width">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="form-input search-input" placeholder="Search by name, ID, or email...">
+                    </div>
+                    <div class="filter-actions">
+                        <span class="filter-label">Section:</span>
+                        <select class="form-input">
+                            <option>BT101</option>
+                        </select>
+                        <button class="btn btn-outline-gray">
+                            <span class="icon">≡</span> More Filters
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Student list table. <tbody> starts EMPTY on purpose -
+                     rows are created dynamically by JS (see saveStudent()) whenever
+                     someone adds a student. There is no sample/starter data. -->
+                <div class="table-responsive">
+                    <table class="styled-table perfect-lines" id="studentTable">
+                        <thead>
+                            <tr>
+                                <th style="padding-left: 20px;">NAME</th>
+                                <th>USERNAME</th>
+                                <th>PASSWORD</th>
+                                <th style="text-align: right; padding-right: 20px;">ACTIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows get inserted here at runtime by saveStudent() -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination footer - NOTE: this is static placeholder text/buttons,
+                     it does not actually count rows or page through data yet -->
+                <div class="pagination-footer">
+                    <span class="showing-text">Showing 0 of 0 students</span>
+                    <div class="pagination-controls">
+                        <button class="page-btn">&lt;</button>
+                        <button class="page-btn active">1</button>
+                        <button class="page-btn">&gt;</button>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         ADD / EDIT STUDENT MODAL (popup form)
+         Hidden by default (see .admin-modal-overlay CSS). Shown when
+         openStudentModal('add') or openStudentModal('edit', btn) runs.
+         The SAME form is reused for both adding a new student and
+         editing an existing one - saveStudent() decides which based
+         on the "editingRow" variable in the script below.
+         ============================================================ -->
+    <div class="admin-modal-overlay" id="studentModal">
+        <div class="admin-modal-box">
+            <div class="admin-modal-header">
+                <!-- Title text is swapped between "Add New Student" / "Edit Student" via JS -->
+                <h2 class="admin-modal-title" id="modalTitle">Add New Student</h2>
+            </div>
+            <div class="admin-modal-body">
+                <fieldset class="admin-fieldset">
+                    <legend class="admin-legend"><span class="admin-legend-icon">🪪</span> Identity Details</legend>
+                    <div class="admin-flex-row">
+                        <div class="admin-flex-col">
+                            <label class="admin-label">Full Name</label>
+                            <input type="text" id="studentName" class="admin-input" placeholder="e.g. Jonathan Doe">
+                        </div>
+                        <div class="admin-flex-col">
+                            <label class="admin-label">Student ID</label>
+                            <input type="text" id="studentIdNum" class="admin-input" placeholder="STU-2024-001">
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="admin-fieldset">
+                    <legend class="admin-legend"><span class="admin-legend-icon">🔒</span> Access Credentials</legend>
+                    <div class="admin-flex-row">
+                        <div class="admin-flex-col">
+                            <label class="admin-label">Username</label>
+                            <div class="admin-input-wrapper">
+                                <span class="admin-input-icon">@</span>
+                                <input type="text" id="studentUsername" class="admin-input with-icon" placeholder="username">
+                            </div>
+                        </div>
+                        <div class="admin-flex-col">
+                            <label class="admin-label">Temporary Password</label>
+                            <div class="admin-input-wrapper">
+                                <span class="admin-input-icon">🔑</span>
+                                <input type="password" id="studentPassword" class="admin-input with-icon" placeholder="••••••••">
+                                <span class="admin-input-eye" onclick="toggleModalPassword()">👁</span>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="admin-modal-footer">
+                <button class="btn-ghost" onclick="closeStudentModal()">Cancel</button>
+                <button class="btn-solid" id="saveStudentBtn" onclick="saveStudent()">Add Student</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tracks which <tr> is being edited. null = we're adding a NEW student.
+        // Set inside openStudentModal('edit', ...) and read inside saveStudent().
+        let editingRow = null;
+
+        // Opens/closes the small "Logout" dropdown under the profile name (top-right)
+        function toggleDropdown() {
+            document.getElementById("profileDropdown").classList.toggle("show");
+        }
+
+        // Closes the profile dropdown if the user clicks anywhere OUTSIDE it
+        window.onclick = function(event) {
+            if (!event.target.closest('.profile-dropdown-container')) {
+                let dropdowns = document.getElementsByClassName("dropdown-menu");
+                for (let i = 0; i < dropdowns.length; i++) {
+                    let openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+
+        // Shows/hides the password text INSIDE the Add/Edit Student popup form
+        // (toggles the input's type between "password" (dots) and "text" (readable))
+        function toggleModalPassword() {
+            const pwdInput = document.getElementById("studentPassword");
+            if (pwdInput.type === "password") {
+                pwdInput.type = "text";
+            } else {
+                pwdInput.type = "password";
+            }
+        }
+
+        // Shows/hides the password for ONE row in the student table (the 👁 icon per row).
+        // The real password is stored in the data-password attribute so it can be
+        // swapped back and forth with the masked "••••••••" text.
+        function toggleRowPassword(iconElement) {
+            const pwdSpan = iconElement.previousElementSibling;
+            const actualPassword = pwdSpan.getAttribute("data-password");
+            if (pwdSpan.innerText === "••••••••") {
+                pwdSpan.innerText = actualPassword;
+            } else {
+                pwdSpan.innerText = "••••••••";
+            }
+        }
+
+        // Opens the Add/Edit Student popup.
+        // mode: 'add'  -> blank form, creates a new row when saved
+        // mode: 'edit' -> pre-fills the form from the clicked row's data (btn = the ✎ edit button clicked)
+        function openStudentModal(mode, btn = null) {
+            document.getElementById("studentModal").classList.add("show");
+            document.getElementById("studentPassword").type = "password"; // always reset to hidden on open
+            
+            if (mode === 'add') {
+                document.getElementById("modalTitle").innerText = "Add New Student";
+                document.getElementById("saveStudentBtn").innerText = "Add Student";
+                document.getElementById("studentName").value = "";
+                document.getElementById("studentIdNum").value = "";
+                document.getElementById("studentUsername").value = "";
+                document.getElementById("studentPassword").value = "TempPass123!";
+                editingRow = null;
+            } else if (mode === 'edit') {
+                document.getElementById("modalTitle").innerText = "Edit Student";
+                document.getElementById("saveStudentBtn").innerText = "Save Changes";
+                editingRow = btn.closest('tr'); // remember which row we're editing
+                
+                // Pull the current values straight out of the table row's HTML
+                // so the form opens pre-filled with this student's info
+                const name = editingRow.querySelector('.user-details strong').innerText;
+                const studentId = editingRow.querySelector('.user-details .text-gray').innerText.replace('ID: ', '').trim();
+                const username = editingRow.cells[1].querySelector('.acc-line').innerText.replace('👤', '').trim();
+                const password = editingRow.querySelector('.pwd-text').getAttribute('data-password');
+                
+                document.getElementById("studentName").value = name;
+                document.getElementById("studentIdNum").value = studentId;
+                document.getElementById("studentUsername").value = username;
+                document.getElementById("studentPassword").value = password; 
+            }
+        }
+
+        function closeStudentModal() {
+            document.getElementById("studentModal").classList.remove("show");
+        }
+
+        // Runs when "Add Student" / "Save Changes" is clicked.
+        // Validates the form, then either UPDATES the existing row (edit mode)
+        // or CREATES a brand new row and appends it to the table (add mode).
+        function saveStudent() {
+            const name = document.getElementById("studentName").value;
+            const studentId = document.getElementById("studentIdNum").value;
+            const username = document.getElementById("studentUsername").value;
+            const password = document.getElementById("studentPassword").value;
+
+            // Basic required-field check - stops here if anything is blank
+            if (!name || !studentId || !username || !password) {
+                alert("Please fill in all required fields.");
+                return;
+            }
+
+            if (editingRow) {
+                // EDIT MODE: overwrite the existing row's cells with the new values
+                editingRow.querySelector('.user-details strong').innerText = name;
+                editingRow.querySelector('.user-details .text-gray').innerText = `ID: ${studentId}`;
+                editingRow.cells[1].innerHTML = `<div class="acc-line text-gray"><span>👤</span> ${username}</div>`;
+                editingRow.cells[2].innerHTML = `
+                    <div class="acc-line text-gray">
+                        <span style="color:#e6a838">🔒</span> 
+                        <span class="pwd-text" data-password="${password}">••••••••</span> 
+                        <span class="eye-icon" onclick="toggleRowPassword(this)">👁</span>
+                    </div>
+                `;
+            } else {
+                // ADD MODE: build a brand new <tr> and append it to the table body
+                const tbody = document.querySelector("#studentTable tbody");
+                const newRow = document.createElement("tr");
+                
+                newRow.innerHTML = `
+                    <td style="padding-left: 20px;">
+                        <div class="user-details">
+                            <strong style="color: #000;">${name}</strong>
+                            <span class="text-gray">ID: ${studentId}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="acc-line text-gray"><span>👤</span> ${username}</div>
+                    </td>
+                    <td>
+                        <div class="acc-line text-gray">
+                            <span style="color:#e6a838">🔒</span> 
+                            <span class="pwd-text" data-password="${password}">••••••••</span> 
+                            <span class="eye-icon" onclick="toggleRowPassword(this)">👁</span>
+                        </div>
+                    </td>
+                    <td style="padding-right: 20px;">
+                        <div class="action-cells">
+                            <button class="icon-btn" title="Edit" onclick="openStudentModal('edit', this)">✎</button>
+                            <button class="icon-btn trash" title="Delete" onclick="deleteStudent(this)">🗑</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(newRow);
+            }
+            closeStudentModal();
+        }
+
+        // Removes a student row after a confirmation prompt (no undo!)
+        function deleteStudent(btn) {
+            if(confirm("Are you sure you want to remove this student?")) {
+                btn.closest('tr').remove();
+            }
+        }
+    </script>
+</body>
+</html>

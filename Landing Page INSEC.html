@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IN-SEC Landing Page</title>
+    <link rel="stylesheet" href="public-style.css">
+</head>
+<body>
+
+    <main class="page-container">
+        
+        <!-- ========================================== -->
+        <!-- HEADER SECTION                             -->
+        <!-- (Login Button and Top Navigation area)     -->
+        <!-- ========================================== -->
+        <header>
+            <button class="btn-login" onclick="window.location.href='Login Page.html'">Login</button>
+        </header>
+
+        <!-- ========================================== -->
+        <!-- HERO SECTION                               -->
+        <!-- (Main Title and Download Button)           -->
+        <!-- ========================================== -->
+        <section id="hero" class="section-container flex-center">
+            <div class="text-center">
+                <h1 class="hero-title">IN-SEC</h1>
+                <button class="btn-download" onclick="handleDownload()">Click To Download</button>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- ABOUT US SECTION                           -->
+        <!-- (Project/Game description and logo)        -->
+        <!-- ========================================== -->
+        <section id="about" class="section-container">
+            <h2 class="section-title">About Us</h2>
+            <div class="content-split">
+                <div class="text-content">
+                    <p class="description-text">Description</p>
+                </div>
+                <div class="image-content">
+                    <img src="images/logo.png" alt="About Us" class="placeholder-img rounded" width="345">
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- GAME FEATURES SECTION                      -->
+        <!-- (4-column grid detailing what the game does)-->
+        <!-- ========================================== -->
+        <section id="features" class="section-container block-layout">
+            <h1 class="huge-title text-center mb-50">Game Features</h1>
+            
+            <div class="features-grid">
+                <!-- Feature 1 -->
+                <div class="feature-card">
+                    <div class="feature-img-wrapper">
+                        <img src="https://placehold.co/250x180/ffffff/999999?text=Feature+1" alt="Feature 1">
+                    </div>
+                    <h3 class="feature-title">Engaging Visual Learning Through Game Experience</h3>
+                    <p class="feature-desc">Students can engage with interactive content that makes learning more enjoyable and effective.</p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="feature-card">
+                    <div class="feature-img-wrapper">
+                        <img src="https://placehold.co/250x180/ffffff/999999?text=Feature+2" alt="Feature 2">
+                    </div>
+                    <h3 class="feature-title">Interactive activities and assessments</h3>
+                    <p class="feature-desc">Students can test their knowledge and skills through interactive polls, quizzes, and debates, among others.</p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="feature-card">
+                    <div class="feature-img-wrapper">
+                        <img src="https://placehold.co/250x180/ffffff/999999?text=Feature+3" alt="Feature 3">
+                    </div>
+                    <h3 class="feature-title">Student progress tracking</h3>
+                    <p class="feature-desc">The platform tracks student progress within the game, showing completed levels and achievement growth rather than att</p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="feature-card">
+                    <div class="feature-img-wrapper">
+                        <img src="https://placehold.co/250x180/ffffff/000000?text=Feature+4" alt="Feature 4">
+                    </div>
+                    <h3 class="feature-title">Challenging Levels</h3>
+                    <p class="feature-desc">The platform allows the students to engage with progressively difficult content that adapts to their learning pace.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- PROGRESS MONITORING SECTION                -->
+        <!-- ========================================== -->
+        <section id="progress" class="section-container">
+            <h2 class="section-title">Progress Monitoring</h2>
+            <div class="content-split reverse">
+                <div class="text-content">
+                    <p class="description-text">Description</p>
+                </div>
+                <div class="image-content">
+                    <img src="https://placehold.co/500x300/eeeeee/999999?text=Progress+Monitoring" alt="Progress" class="placeholder-img">
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- STUDENT ASSESSMENT SECTION                 -->
+        <!-- ========================================== -->
+        <section id="assessment" class="section-container">
+            <h2 class="section-title">Student Assessment</h2>
+            <div class="content-split">
+                <div class="text-content">
+                    <p class="description-text">Description</p>
+                </div>
+                <div class="image-content">
+                    <img src="https://placehold.co/500x300/eeeeee/999999?text=Assessment+Interface" alt="Assessment" class="placeholder-img">
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="landingpagescript.js"></script>
+</body>
+</html>

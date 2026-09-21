@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IN-SEC Sign In</title>
+    <!-- Shared stylesheet, also used by the landing page -->
+    <link rel="stylesheet" href="public-style.css">
+</head>
+<body>
+
+    <!-- ============================================================
+         MAIN LAYOUT
+         Two-column split screen: image panel (left) + form panel (right).
+         Styled by .split-container in public-style.css.
+         On mobile (≤900px), the left panel is hidden (see CSS media query).
+         ============================================================ -->
+    <main class="split-container">
+
+        <!-- Left panel: purely decorative background image/gradient.
+             No content needed here — background is set via CSS (.left-panel). -->
+        <div class="left-panel">
+        </div>
+
+        <!-- Right panel: contains the actual sign-in form -->
+        <div class="right-panel">
+            <div class="form-container">
+
+                <!-- Navigates back to the landing page -->
+                <button class="btn-back" onclick="window.location.href='Landing Page INSEC.html'">← Back to Home</button>
+
+                <h1 class="form-title">Sign In</h1>
+
+                <!-- Role switcher: toggles which type of account is logging in.
+                     setRole() (in loginpagescript.js) should update which
+                     button has the "active" class and likely change form
+                     behavior/endpoint depending on role. -->
+                <div class="role-toggle">
+                    <button class="toggle-btn active" id="btn-admin" onclick="setRole('admin')">Admin</button>
+                    <button class="toggle-btn" id="btn-super" onclick="setRole('super')">Super Admin</button>
+                </div>
+
+                <!-- Login form. Submission is intercepted by handleLoginSubmit()
+                     in loginpagescript.js (likely calls event.preventDefault()
+                     and handles auth via JS instead of a normal page reload). -->
+                <form id="loginForm" onsubmit="handleLoginSubmit(event)">
+
+                    <!-- Email field (required, browser-validated as an email format) -->
+                    <div class="input-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" required>
+                    </div>
+
+                    <!-- Password field (required, masked input) -->
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" required>
+                    </div>
+
+                    <!-- "Remember me" checkbox + forgot password link, side by side -->
+                    <div class="form-options">
+                        <label class="remember-me">
+                            <input type="checkbox" id="remember"> Remember me
+                        </label>
+                        <a href="#" class="forgot-password">Forgot Password?</a>
+                        <!-- TODO: currently links to "#" — needs a real forgot-password page/flow -->
+                    </div>
+
+                    <!-- Submit button — triggers handleLoginSubmit() above -->
+                    <button type="submit" class="btn-submit">Login</button>
+                </form>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Handles login logic: setRole(), handleLoginSubmit(), and any
+         validation/API calls for authenticating the user -->
+    <script src="loginpagescript.js"></script>
+</body>
+</html>

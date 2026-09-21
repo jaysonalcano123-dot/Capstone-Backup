@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Account Management</title>
+    <link rel="stylesheet" href="global-style.css">
+</head>
+
+<body>
+
+    <div class="layout-container">
+
+        <!-- ============================================================
+             SIDEBAR (same nav as every other admin page — see
+             AdminDashboard.html for the fuller commented version)
+             ============================================================ -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="AdminDashboard.html" class="nav-item">
+                    <img src="images/apps.png" alt="Dashboard Icon" class="nav-icon">
+                    Dashboard
+                </a>
+                <!-- "active" is hardcoded here since this page has no
+                     auto-highlight script (unlike AdminDashboard.html) -->
+                <a href="StudentAccountManagement.html" class="nav-item active">
+                    <img src="images/graduation-cap.png" alt="Student Icon" class="nav-icon">
+                    Student Account Management
+                </a>
+                <a href="GameManagement.html" class="nav-item">
+                    <img src="images/console-controller.png" alt="Game Icon" class="nav-icon">
+                    Game Management
+                </a>
+                <a href="StudentGameProgress.html" class="nav-item">
+                    <img src="images/chart-histogram.png" alt="Progress Icon" class="nav-icon">
+                    Student Game Progress
+                </a>
+                <a href="StudentAssessment.html" class="nav-item">
+                    <img src="images/assessment.png" alt="Assessment Icon" class="nav-icon">
+                    Student Assessment
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="admin-avatar">A</div>
+                <div class="admin-info">
+                    <strong>Admin (Name)</strong>
+                    <span>Admin</span>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <!-- Topbar: page title + profile dropdown (logout) -->
+            <header class="topbar">
+                <h1 class="page-title">Student Account Management</h1>
+
+                <div class="profile-dropdown-container">
+                    <div class="user-profile" onclick="toggleDropdown()">
+                        <img src="Images/bell.png" alt="Notification" class="topbar-icon">
+                        <span class="user-name">Sample Sample</span>
+                        <div class="profile-pic">
+                        </div>
+                        <span class="dropdown-icon">▼</span>
+                    </div>
+
+                    <div class="dropdown-menu" id="profileDropdown">
+                        <button class="dropdown-item text-red" onclick="window.location.href='Login Page.html'">
+                            <img src="Images/leave.png" alt="Logout" class="topbar-icon">
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="page-body">
+
+                <!-- Page heading + subtext — "BSIT" / school year are
+                     hardcoded, should come from the selected section/term -->
+                <div style="margin-bottom: 25px;">
+                    <h2 class="page-title-large">Section Class List | BSIT</h2>
+                    <p class="text-gray" style="margin-top: 5px;">Students for the S.Y - 2025-2026 | 1st Semester</p>
+                </div>
+
+                <!-- ============================================================
+                     STUDENT INFORMATION TABLE
+                     Lists enrolled students (ID, name, address, etc).
+                     - "Insert Record" / "Create New Student" both open the
+                       same Add/Edit Student modal via openInsertModal().
+                     - "Download Class List" has no onclick handler yet —
+                       still needs to be wired up.
+                     - Table body starts EMPTY; rows are only added at
+                       runtime via JS (see handleInsertStudent() below).
+                     ============================================================ -->
+                <div class="data-card">
+
+                    <div class="card-header-row">
+                        <h3 class="panel-heading" style="font-size: 20px;">Student Information</h3>
+                        <div class="header-actions">
+                            <button class="btn btn-pill-outline" onclick="openInsertModal()">Insert Record</button>
+                            <button class="btn btn-pill-outline">Download Class List</button>
+                            <button class="btn btn-pill-outline" onclick="openInsertModal()">Create New Student</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-bar">
+                        <div class="filter-group">
+                            <label>Section:</label>
+                            <select class="form-input rounded-input">
+                                <option>SC01</option>
+                            </select>
+                        </div>
+                        <div class="filter-group" style="margin-left: 15px;">
+                            <label>Chapter:</label>
+                            <select class="form-input rounded-input">
+                                <option>CH01</option>
+                            </select>
+                        </div>
+                        <div class="search-box">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" class="form-input search-input rounded-input"
+                                placeholder="Search by Name or ID" style="border-radius: 20px;">
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="data-table styled-table text-center-table" style="margin-top: 10px;">
+                            <thead>
+                                <tr>
+                                    <th>ID Number</th>
+                                    <th>Name</th>
+                                    <th>Address</th>
+                                    <th>Gender</th>
+                                    <th>Contact Number</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <!-- New rows get prepended here at runtime by
+                                 handleInsertStudent() -->
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination controls — static markup only, not yet
+                         wired to actually change pages or reflect real counts -->
+                    <div class="pagination-footer">
+                        <span class="showing-text">Showing 0 students</span>
+                        <div class="pagination-controls">
+                            <button class="page-btn">&lt;</button>
+                            <button class="page-btn active">1</button>
+                            <button class="page-btn">2</button>
+                            <button class="page-btn">3</button>
+                            <button class="page-btn">&gt;</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================================
+                     STUDENT LOGIN CREDENTIALS TABLE
+                     Separate from the Student Information table above —
+                     this one manages each student's username/password for
+                     logging into the game/system. "Create Account" opens
+                     the Create Student Account modal via openAccountModal().
+                     Table body also starts EMPTY, populated via JS.
+                     ============================================================ -->
+                <div class="data-card">
+                    <div class="card-header-row">
+                        <h3 class="panel-heading" style="font-size: 20px;">Student Login Credentials</h3>
+                        <div class="header-actions" style="display: flex; gap: 15px; align-items: center;">
+                            <button class="btn btn-pill-outline" onclick="openAccountModal()">Create Account</button>
+                            <div class="search-box" style="margin-left: 0;">
+                                <span class="search-icon">🔍</span>
+                                <input type="text" class="form-input search-input rounded-input" placeholder="Search by Name or ID" style="border-radius: 20px;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="data-table styled-table text-center-table">
+                            <thead>
+                                <tr>
+                                    <th>ID Number</th>
+                                    <th>Student Name</th>
+                                    <th>Username</th>
+                                    <th>Password</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <!-- New rows get prepended here at runtime by
+                                 handleCreateAccount() -->
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         ADD / EDIT STUDENT MODAL
+         Shared by both "Insert Record" and "Create New Student"
+         buttons for adding a new row, and by editStudent() for
+         editing an existing row (title/button text swap between
+         "Add"/"Edit" — see openInsertModal()/editStudent() in JS).
+         ============================================================ -->
+    <div class="modal-overlay" id="insertModalOverlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title">Add New Student</h2>
+                    <p class="modal-subtitle">Enter student credentials and personal details below.</p>
+                </div>
+                <button class="modal-close-btn" onclick="closeInsertModal()" title="Close">✕</button>
+            </div>
+
+            <!-- handleInsertStudent() either updates the row being
+                 edited, or creates a brand-new row if editingRow is null -->
+            <form id="insertStudentForm" onsubmit="handleInsertStudent(event)">
+                <div class="modal-body">
+
+                    <div class="field-group">
+                        <label class="field-label">Student ID Number</label>
+                        <input type="text" id="insStudentNum" class="modal-input" placeholder="e.g. 02000123456"
+                            required>
+                    </div>
+
+                    <div class="section-divider">
+                        <span class="divider-text">Personal Information</span>
+                    </div>
+
+                    <!-- 4-column row: First / Last / Middle Initial / Suffix -->
+                    <div class="modal-row-4">
+                        <div class="field-group">
+                            <label class="field-label">First Name</label>
+                            <input type="text" id="insFirstName" class="modal-input" placeholder="First Name" required>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Last Name</label>
+                            <input type="text" id="insLastName" class="modal-input" placeholder="Last Name" required>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">M.I.</label>
+                            <input type="text" id="insMI" class="modal-input text-center" placeholder="A.">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Suffix</label>
+                            <input type="text" id="insSuffix" class="modal-input text-center" placeholder="Jr.">
+                        </div>
+                    </div>
+                    <!-- NOTE: M.I. and Suffix fields are collected here but
+                         NOT actually saved/displayed anywhere — the table
+                         only ever shows "Last, First" (see handleInsertStudent()
+                         and editStudent() in the script below). -->
+
+                    <div class="field-group">
+                        <label class="field-label">Complete Address</label>
+                        <input type="text" id="insAddress" class="modal-input"
+                            placeholder="House No., Street, Barangay, City/Province" required>
+                    </div>
+
+                    <!-- 2-column row: Contact Number / Gender -->
+                    <div class="modal-row-2">
+                        <div class="field-group">
+                            <label class="field-label">Contact Number</label>
+                            <input type="text" id="insContact" class="modal-input" placeholder="0912 345 6789" required>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Gender</label>
+                            <select id="insGender" class="modal-input" required>
+                                <option value="" disabled selected>Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeInsertModal()">Cancel</button>
+                    <button type="submit" class="btn-modal-submit">Save Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         CREATE / EDIT STUDENT ACCOUNT MODAL
+         Sets up login credentials (username/password) tied to a
+         student ID. Password field has a show/hide eye-icon toggle
+         (toggleModalPassword()). Handled by handleCreateAccount().
+         ============================================================ -->
+    <div class="modal-overlay" id="accountModalOverlay">
+        <div class="modal-box" style="max-width: 500px;">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title">Create Student Account</h2>
+                    <p class="modal-subtitle">Set up login credentials for a student.</p>
+                </div>
+                <button class="modal-close-btn" onclick="closeAccountModal()" title="Close">✕</button>
+            </div>
+
+            <form id="createAccountForm" onsubmit="handleCreateAccount(event)">
+                <div class="modal-body">
+                    <div class="field-group">
+                        <label class="field-label">Student ID Number</label>
+                        <input type="text" id="accStudentNum" class="modal-input" placeholder="e.g. 02000123456" required>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Student Name</label>
+                        <input type="text" id="accStudentName" class="modal-input" placeholder="Last Name, First Name" required>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Username</label>
+                        <input type="text" id="accUsername" class="modal-input" placeholder="Username" required>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Password</label>
+                        <!-- Eye icon toggles this field between type="password"
+                             and type="text" via toggleModalPassword() -->
+                        <div style="position: relative; display: flex; align-items: center;">
+                            <input type="password" id="accPassword" class="modal-input" placeholder="Enter password" required style="padding-right: 35px; width: 100%;">
+                            <button type="button" onclick="toggleModalPassword()" style="position: absolute; right: 10px; background: none; border: none; cursor: pointer; color: #6b7280; outline: none; padding: 0; display: flex; align-items: center; justify-content: center;">
+                                <span id="modalEyeIcon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeAccountModal()">Cancel</button>
+                    <button type="submit" class="btn-modal-submit">Create Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+<script>
+    // Inline SVG icon strings for the password show/hide toggle
+    // (open eye = hidden password, closed/slashed eye = visible password)
+    const eyeOpenSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+    const eyeClosedSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+
+    // Tracks which table row (if any) is currently being edited.
+    // null = "Add" mode (creates a new row); a <tr> reference = "Edit" mode.
+    let editingRow = null;
+    let editingAccountRow = null;
+
+    function toggleDropdown() {
+        document.getElementById("profileDropdown").classList.toggle("show");
+    }
+
+    // Closes the profile dropdown when clicking anywhere outside it
+    window.onclick = function (event) {
+        if (!event.target.closest('.profile-dropdown-container')) {
+            let dropdowns = document.getElementsByClassName("dropdown-menu");
+            for (let i = 0; i < dropdowns.length; i++) {
+                let openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
+                }
+            }
+        }
+    }
+
+    // --- Add/Edit Student modal controls ---
+
+    // Opens the modal in "Add" mode (blank form, editingRow = null)
+    function openInsertModal() {
+        editingRow = null;
+        document.querySelector("#insertModalOverlay .modal-title").textContent = "Add New Student";
+        document.querySelector("#insertModalOverlay .btn-modal-submit").textContent = "Save Record";
+        document.getElementById("insertStudentForm").reset();
+        document.getElementById("insertModalOverlay").classList.add("show-modal");
+    }
+
+    function closeInsertModal() {
+        document.getElementById("insertModalOverlay").classList.remove("show-modal");
+        document.getElementById("insertStudentForm").reset();
+        editingRow = null;
+    }
+
+    // Opens the modal in "Edit" mode, pre-filling fields from the
+    // clicked table row's existing cell values
+    function editStudent(button) {
+        editingRow = button.closest("tr");
+        let cells = editingRow.querySelectorAll("td");
+        
+        document.getElementById("insStudentNum").value = cells[0].textContent;
+        
+        // Name is stored as "Last, First" in the table — split it back
+        // apart to populate the separate First/Last name fields.
+        // NOTE: M.I. and Suffix are reset to blank here since they were
+        // never actually saved into the table in the first place.
+        let fullName = cells[1].textContent;
+        let nameParts = fullName.split(', ');
+        document.getElementById("insLastName").value = nameParts[0] || '';
+        document.getElementById("insFirstName").value = nameParts[1] || '';
+        document.getElementById("insMI").value = '';
+        document.getElementById("insSuffix").value = '';
+
+        document.getElementById("insAddress").value = cells[2].textContent;
+        document.getElementById("insGender").value = cells[3].textContent;
+        document.getElementById("insContact").value = cells[4].textContent;
+
+        document.querySelector("#insertModalOverlay .modal-title").textContent = "Edit Student";
+        document.querySelector("#insertModalOverlay .btn-modal-submit").textContent = "Update Record";
+        
+        document.getElementById("insertModalOverlay").classList.add("show-modal");
+    }
+
+    // Form submit handler for the Add/Edit Student modal.
+    // If editingRow is set, updates that row's cells in place.
+    // Otherwise, builds a new <tr> and prepends it to the table.
+    function handleInsertStudent(event) {
+        event.preventDefault();
+
+        const studentNum = document.getElementById("insStudentNum").value.trim();
+        const firstName = document.getElementById("insFirstName").value.trim();
+        const lastName = document.getElementById("insLastName").value.trim();
+        const address = document.getElementById("insAddress").value.trim();
+        const contact = document.getElementById("insContact").value.trim();
+        const gender = document.getElementById("insGender").value;
+
+        const fullName = `${lastName}, ${firstName}`;
+
+        if (editingRow) {
+            let cells = editingRow.querySelectorAll("td");
+            cells[0].textContent = studentNum;
+            cells[1].textContent = fullName;
+            cells[2].textContent = address;
+            cells[3].textContent = gender;
+            cells[4].textContent = contact;
+        } else {
+            // .data-table tbody[0] = the Student Information table
+            // (the Student Login Credentials table is tbody[1], see below)
+            const tableBody = document.querySelectorAll(".data-table tbody")[0];
+            const newRow = document.createElement("tr");
+            newRow.innerHTML = `
+                <td>${studentNum}</td>
+                <td>${fullName}</td>
+                <td>${address}</td>
+                <td>${gender}</td>
+                <td>${contact}</td>
+                <td>
+                    <div class="action-cells center-actions">
+                        <button class="icon-btn" title="Edit" type="button" onclick="editStudent(this)">✎</button>
+                        <button class="icon-btn trash" title="Delete" type="button" onclick="this.closest('tr').remove()">🗑</button>
+                    </div>
+                </td>
+            `;
+            tableBody.prepend(newRow); // newest students appear at the top
+        }
+
+        closeInsertModal();
+    }
+
+    // --- Create/Edit Student Account modal controls ---
+
+    // Opens the modal in "Create" mode; also resets the password
+    // field back to masked (type="password") in case it was left
+    // toggled visible from a previous edit
+    function openAccountModal() {
+        editingAccountRow = null;
+        document.querySelector("#accountModalOverlay .modal-title").textContent = "Create Student Account";
+        document.querySelector("#accountModalOverlay .btn-modal-submit").textContent = "Create Account";
+        document.getElementById("createAccountForm").reset();
+        document.getElementById("accountModalOverlay").classList.add("show-modal");
+        
+        const passInput = document.getElementById("accPassword");
+        const eyeIcon = document.getElementById("modalEyeIcon");
+        passInput.type = "password";
+        eyeIcon.innerHTML = eyeOpenSVG;
+    }
+
+    function closeAccountModal() {
+        document.getElementById("accountModalOverlay").classList.remove("show-modal");
+        document.getElementById("createAccountForm").reset();
+        editingAccountRow = null;
+    }
+
+    // Opens the modal in "Edit" mode, pre-filling from the clicked
+    // account row (including pulling the current password value out
+    // of that row's inline .password-field input)
+    function editAccount(button) {
+        editingAccountRow = button.closest("tr");
+        let cells = editingAccountRow.querySelectorAll("td");
+
+        document.getElementById("accStudentNum").value = cells[0].textContent;
+        document.getElementById("accStudentName").value = cells[1].textContent;
+        document.getElementById("accUsername").value = cells[2].textContent;
+        document.getElementById("accPassword").value = cells[3].querySelector(".password-field").value;
+
+        const passInput = document.getElementById("accPassword");
+        const eyeIcon = document.getElementById("modalEyeIcon");
+        passInput.type = "password";
+        eyeIcon.innerHTML = eyeOpenSVG;
+
+        document.querySelector("#accountModalOverlay .modal-title").textContent = "Edit Student Account";
+        document.querySelector("#accountModalOverlay .btn-modal-submit").textContent = "Update Account";
+
+        document.getElementById("accountModalOverlay").classList.add("show-modal");
+    }
+
+    // Form submit handler for the Create/Edit Account modal.
+    // Same update-in-place vs. create-new-row pattern as handleInsertStudent().
+    function handleCreateAccount(event) {
+        event.preventDefault();
+
+        const studentNum = document.getElementById("accStudentNum").value.trim();
+        const studentName = document.getElementById("accStudentName").value.trim();
+        const username = document.getElementById("accUsername").value.trim();
+        const password = document.getElementById("accPassword").value;
+
+        if (editingAccountRow) {
+            let cells = editingAccountRow.querySelectorAll("td");
+            cells[0].textContent = studentNum;
+            cells[1].textContent = studentName;
+            cells[2].textContent = username;
+            cells[3].querySelector(".password-field").value = password;
+        } else {
+            // .data-table tbody[1] = the Student Login Credentials table
+            const tableBody = document.querySelectorAll(".data-table tbody")[1];
+            const newRow = document.createElement("tr");
+            newRow.innerHTML = `
+                <td>${studentNum}</td>
+                <td>${studentName}</td>
+                <td>${username}</td>
+                <td>
+                    <input type="password" class="password-field" value="${password}" readonly style="text-align: center; border: none; background: transparent; outline: none;">
+                </td>
+                <td>
+                    <div class="action-cells center-actions">
+                        <button class="icon-btn" title="Edit" type="button" onclick="editAccount(this)">✎</button>
+                        <button class="icon-btn toggle-pwd" title="Show Password" type="button" onclick="togglePasswordVisibility(this)" style="display: flex; align-items: center; justify-content: center;">
+                            ${eyeOpenSVG}
+                        </button>
+                        <button class="icon-btn trash" title="Delete" type="button" onclick="this.closest('tr').remove()">🗑</button>
+                    </div>
+                </td>
+            `;
+            tableBody.prepend(newRow);
+        }
+
+        closeAccountModal();
+    }
+
+    // Toggles a single row's password between masked and visible
+    // (used by the eye-icon button inside each table row)
+    function togglePasswordVisibility(button) {
+        const row = button.closest("tr");
+        const passField = row.querySelector(".password-field");
+        if (passField.type === "password") {
+            passField.type = "text";
+            button.innerHTML = eyeClosedSVG;
+        } else {
+            passField.type = "password";
+            button.innerHTML = eyeOpenSVG;
+        }
+    }
+
+    // Toggles the password field inside the Create/Edit Account modal
+    // itself (separate from togglePasswordVisibility(), which is for
+    // rows already in the table)
+    function toggleModalPassword() {
+        const passInput = document.getElementById("accPassword");
+        const eyeIcon = document.getElementById("modalEyeIcon");
+        if (passInput.type === "password") {
+            passInput.type = "text";
+            eyeIcon.innerHTML = eyeClosedSVG;
+        } else {
+            passInput.type = "password";
+            eyeIcon.innerHTML = eyeOpenSVG;
+        }
+    }
+</script>
+</html>
